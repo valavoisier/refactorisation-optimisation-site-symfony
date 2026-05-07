@@ -2,9 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Album;
-use App\Entity\Media;
-use App\Entity\User;
 use App\Repository\AlbumRepository;
 use App\Repository\MediaRepository;
 use App\Repository\UserRepository;
@@ -23,7 +20,7 @@ class HomeController extends AbstractController
     #[Route('/guests', name: 'guests')]
     public function guests(UserRepository $userRepository): Response
     {
-        $guests = $userRepository->findBy(['admin' => false]);
+        $guests = $userRepository->findGuests();
         return $this->render('front/guests.html.twig', [
             'guests' => $guests
         ]);
@@ -43,7 +40,7 @@ class HomeController extends AbstractController
     {
         $albums = $albumRepository->findAll();
         $album = $id ? $albumRepository->find($id) : null;
-        $user = $userRepository->findOneBy(['admin' => true]);
+        $user = $userRepository->findAdmin();
 
         $medias = $album
             ? $mediaRepository->findByAlbum($album)

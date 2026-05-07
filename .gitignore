@@ -19,3 +19,6 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 projet-15.txt
+album.sql
+media.sql
+user.sql

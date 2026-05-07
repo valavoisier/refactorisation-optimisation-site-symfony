@@ -6,10 +6,12 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,7 +19,7 @@ class User
     private ?int $id = null;
 
     #[ORM\Column]
-    private bool $admin = false;
+    private bool $blocked = false;
 
     #[ORM\Column]
     private ?string $name;
@@ -27,6 +29,12 @@ class User
 
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
+
+    #[ORM\Column]
+    private string $password = '';
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'user')]
     private Collection $medias;
@@ -83,13 +91,51 @@ class User
         $this->medias = $medias;
     }
 
-    public function isAdmin(): bool
+    public function isBlocked(): bool
     {
-        return $this->admin;
+        return $this->blocked;
     }
 
-    public function setAdmin(bool $admin): void
+    public function setBlocked(bool $blocked): void
     {
-        $this->admin = $admin;
+        $this->blocked = $blocked;
+    }
+
+    // --- UserInterface ---
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // pas de données sensibles temporaires à effacer
+    }
+
+    // --- PasswordAuthenticatedUserInterface ---
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 }
+
