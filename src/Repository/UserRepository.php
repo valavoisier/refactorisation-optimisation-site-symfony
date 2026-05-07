@@ -43,8 +43,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findAdmin(): ?User
     {
         return $this->createQueryBuilder('u')
-            ->where('JSON_CONTAINS(u.roles, :role) = 1')
-            ->setParameter('role', json_encode('ROLE_ADMIN'))
+            ->where("u.roles LIKE :role")
+            ->setParameter('role', '%ROLE_ADMIN%')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -54,8 +54,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findGuests(): array
     {
         return $this->createQueryBuilder('u')
-            ->where('JSON_CONTAINS(u.roles, :role) = 0')
-            ->setParameter('role', json_encode('ROLE_ADMIN'))
+            ->where("u.roles NOT LIKE :role")
+            ->setParameter('role', '%ROLE_ADMIN%')
             ->getQuery()
             ->getResult();
     }
