@@ -7,7 +7,6 @@ use App\Form\MediaType;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -67,7 +66,6 @@ class MediaController extends AbstractController
         int $id,
         MediaRepository $mediaRepository,
         EntityManagerInterface $em,
-        #[Autowire('%kernel.project_dir%')] string $projectDir
     ): Response {
         $media = $mediaRepository->find($id);
 
@@ -79,13 +77,8 @@ class MediaController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce média.');
         }
 
-        $absolutePath = $projectDir . '/public/' . $media->getPath();
         $em->remove($media);
         $em->flush();
-
-        if (file_exists($absolutePath)) {
-            unlink($absolutePath);
-        }
 
         return $this->redirectToRoute('admin_media_index');
     }
