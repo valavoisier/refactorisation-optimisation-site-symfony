@@ -19,4 +19,11 @@ class SecurityController extends AbstractController
             'error'         => $error,
         ]);
     }
+
+    #[Route('/logout', name: 'admin_logout')]
+    public function logout(): never
+    {
+        // Intercepté automatiquement par le firewall Symfony
+        throw new \LogicException('Cette méthode ne doit pas être appelée directement.');
+    }
 }
