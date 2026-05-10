@@ -42,22 +42,31 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findAdmin(): ?User
     {
-        return $this->createQueryBuilder('u')
-            ->where("u.roles LIKE :role")
-            ->setParameter('role', '%ROLE_ADMIN%')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $rsm = new \Doctrine\ORM\Query\ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(User::class, 'u');
+
+        $query = $this->getEntityManager()->createNativeQuery(
+            'SELECT u.* FROM "user" u WHERE u.roles::text LIKE :role LIMIT 1',
+            $rsm
+        );
+        $query->setParameter('role', '%ROLE_ADMIN%');
+
+        return $query->getOneOrNullResult();
     }
 
     /** @return User[] */
     public function findGuests(): array
     {
-        return $this->createQueryBuilder('u')
-            ->where("u.roles NOT LIKE :role")
-            ->setParameter('role', '%ROLE_ADMIN%')
-            ->getQuery()
-            ->getResult();
+        $rsm = new \Doctrine\ORM\Query\ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(User::class, 'u');
+
+        $query = $this->getEntityManager()->createNativeQuery(
+            'SELECT u.* FROM "user" u WHERE u.roles::text NOT LIKE :role',
+            $rsm
+        );
+        $query->setParameter('role', '%ROLE_ADMIN%');
+
+        return $query->getResult();
     }
 
 //    /**
