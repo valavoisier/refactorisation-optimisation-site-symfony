@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 class GuestType extends AbstractType
 {
@@ -32,6 +33,10 @@ class GuestType extends AbstractType
                     new Length(
                         min: 12,
                         minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
+                    ),
+                    new PasswordStrength(
+                        minScore: PasswordStrength::STRENGTH_WEAK,
+                        message: 'Le mot de passe est trop faible. Utilisez un mélange de lettres, chiffres et caractères spéciaux.',
                     ),
                 ],
             ])

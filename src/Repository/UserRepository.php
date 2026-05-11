@@ -69,6 +69,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $query->getResult();
     }
 
+    /** @return User[] Invités actifs (non bloqués) pour le front */
+    public function findActiveGuests(): array
+    {
+        $rsm = new \Doctrine\ORM\Query\ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(User::class, 'u');
+
+        $query = $this->getEntityManager()->createNativeQuery(
+            'SELECT u.* FROM "user" u WHERE u.roles::text NOT LIKE :role AND u.blocked = false ORDER BY u.id ASC',
+            $rsm
+        );
+        $query->setParameter('role', '%ROLE_ADMIN%');
+
+        return $query->getResult();
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

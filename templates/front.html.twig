@@ -29,14 +29,16 @@
                         {# --- Zone Connexion / Administration / Déconnexion --- #}
                         {% if app.user %}
 
-                            {# Lien Administration uniquement pour Ina (ROLE_ADMIN) #}
                             {% if is_granted('ROLE_ADMIN') %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('admin_media_index') }}">Administration</a>
                                 </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('admin_media_index') }}">Mes médias</a>
+                                </li>
                             {% endif %}
 
-                            {# Déconnexion pour tous les utilisateurs connectés #}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('admin_logout') }}">Déconnexion</a>
                             </li>
