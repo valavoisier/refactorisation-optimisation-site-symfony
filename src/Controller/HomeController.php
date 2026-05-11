@@ -30,6 +30,11 @@ class HomeController extends AbstractController
     public function guest(int $id, UserRepository $userRepository): Response
     {
         $guest = $userRepository->find($id);
+
+        if (!$guest || $guest->isBlocked()) {
+            throw $this->createNotFoundException('Invité introuvable.');
+        }
+
         return $this->render('front/guest.html.twig', [
             'guest' => $guest
         ]);

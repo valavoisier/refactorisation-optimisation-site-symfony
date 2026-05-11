@@ -34,9 +34,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: 'Le mot de passe ne peut pas être vide.')]
-    #[Assert\Length(min: 12, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.')]
-    #[Assert\PasswordStrength(minScore: Assert\PasswordStrength::STRENGTH_MEDIUM, message: 'Le mot de passe est trop faible. Utilisez un mélange de lettres, chiffres et caractères spéciaux.')]
     private string $password = '';
 
     #[ORM\Column(type: 'json')]

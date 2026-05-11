@@ -54,14 +54,14 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $query->getOneOrNullResult();
     }
 
-    /** @return User[] */
+    /** @return User[] Tous les invités (admin) */
     public function findGuests(): array
     {
         $rsm = new \Doctrine\ORM\Query\ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(User::class, 'u');
 
         $query = $this->getEntityManager()->createNativeQuery(
-            'SELECT u.* FROM "user" u WHERE u.roles::text NOT LIKE :role',
+            'SELECT u.* FROM "user" u WHERE u.roles::text NOT LIKE :role ORDER BY u.id ASC',
             $rsm
         );
         $query->setParameter('role', '%ROLE_ADMIN%');
