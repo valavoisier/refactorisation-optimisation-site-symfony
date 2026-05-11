@@ -23,10 +23,10 @@ class MediaController extends AbstractController
         if (!$this->isGranted('ROLE_ADMIN')) {
             $criteria['user'] = $this->getUser();
         }
-
+        //replace le média uploadé en fin de liste de chaque utilisateur concerné
         $medias = $mediaRepository->findBy(
             $criteria,
-            ['id' => 'ASC'],
+            ['user' => 'ASC', 'id' => 'ASC'],
             25,
             25 * ($page - 1)
         );

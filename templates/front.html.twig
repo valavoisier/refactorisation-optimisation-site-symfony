@@ -26,13 +26,27 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('about') }}">Qui suis-je ?</a>
                         </li>
-                        <li class="nav-item">
-                            {% if is_granted('ROLE_USER') %}
-                                <a class="nav-link" href="{{ path('admin_logout') }}">Déconnexion</a>
-                            {% else %}
-                                <a class="nav-link" href="{{ path('admin_login') }}">Connexion</a>
+                        {# --- Zone Connexion / Administration / Déconnexion --- #}
+                        {% if app.user %}
+
+                            {# Lien Administration uniquement pour Ina (ROLE_ADMIN) #}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('admin_media_index') }}">Administration</a>
+                                </li>
                             {% endif %}
-                        </li>
+
+                            {# Déconnexion pour tous les utilisateurs connectés #}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('admin_logout') }}">Déconnexion</a>
+                            </li>
+
+                        {% else %}
+                            {# Visiteur non connecté #}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('admin_login') }}">Connexion</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
