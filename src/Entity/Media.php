@@ -25,6 +25,8 @@ class Media
     private string $path;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Le titre ne peut pas être vide.')]
+    #[Assert\Length(max: 150, maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.')]
     private string $title;
 
     #[Assert\File(
