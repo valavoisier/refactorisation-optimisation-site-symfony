@@ -6,8 +6,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+
 /**
- * Contrôleur pour la gestion de la sécurité (login/logout) dans l'administration.
+ * Contrôleur pour la gestion de la sécurité dans l'administration.
+ *
+ * Rôle :
+ * - Gère la page de connexion de l'espace admin.
+ * - Fournit la route de déconnexion (gérée automatiquement par Symfony).
+ *
+ * Actions disponibles :
+ * - login()  : affiche le formulaire de connexion et gère les erreurs éventuelles.
+ * - logout() : route technique interceptée par le firewall pour déconnecter l'admin.
  */
 class SecurityController extends AbstractController
 {

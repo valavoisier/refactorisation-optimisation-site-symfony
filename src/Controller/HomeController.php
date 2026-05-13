@@ -9,11 +9,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 /**
- * Contrôleur principal pour les pages: 
- * - accueil
- * - présentation des invités
- * - portfolio
- * - page "À propos".
+ * Contrôleur principal du site public.
+ *
+ * Rôle :
+ * - Gère toutes les pages visibles par les visiteurs.
+ * - Centralise l'affichage de l'accueil, des invités, du portfolio et de la page "À propos".
+ *
+ * Actions disponibles :
+ * - home()      : page d'accueil du site.
+ * - guests()    : liste des invités actifs (non bloqués).
+ * - guest()     : page d'un invité spécifique (profil public).
+ * - portfolio() : affiche le travail d'Ina (admin) — albums + médias.
+ * - about()     : page "À propos".
  */
 class HomeController extends AbstractController
 {
