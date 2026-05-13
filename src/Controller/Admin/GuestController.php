@@ -36,6 +36,8 @@ class GuestController extends AbstractController
     #[Route('/admin/guest', name: 'admin_guest_index')]
     public function index(UserRepository $userRepository): Response
     {
+        //findGuests() est une méthode personnalisée dans UserRepository 
+        //cette méthode récupère tous les utilisateurs avec le rôle ROLE_USER
         return $this->render('admin/guest/index.html.twig', [
             'guests' => $userRepository->findGuests(),
         ]);
@@ -50,21 +52,28 @@ class GuestController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $hasher,
     ): Response {
+        // Création d'une nouvelle instance de User (invité)
         $guest = new User();
+        // Création du formulaire lié à l'entité User (GuestType)
         $form = $this->createForm(GuestType::class, $guest);
+        // Hydrate l'objet User avec les données envoyées (si POST)
         $form->handleRequest($request);
 
+        // Vérifie si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            // Hash le mot de passe saisi dans plainpassword avant de le stocker en base de données
             $guest->setPassword(
                 $hasher->hashPassword($guest, $form->get('plainPassword')->getData())
             );
-            $guest->setRoles(['ROLE_USER']);
-            $em->persist($guest);
-            $em->flush();
+            $guest->setRoles(['ROLE_USER']);// Attribution du rôle de base ROLE_USER à l'invité
+            $em->persist($guest);// Prépare l'invité à être enregistré en base de données
+            $em->flush();// Enregistre l'invité en base de données
 
+            // Redirige vers la liste des invités après l'ajout réussi
             return $this->redirectToRoute('admin_guest_index');
         }
 
+        // Affiche le formulaire d'ajout d'invité   
         return $this->render('admin/guest/add.html.twig', ['form' => $form]);
     }
 
@@ -75,15 +84,19 @@ class GuestController extends AbstractController
     #[Route('/admin/guest/toggle/{id}', name: 'admin_guest_toggle')]
     public function toggle(int $id, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
+        // Récupération de l'invité par son ID
         $guest = $userRepository->find($id);
 
+        // Si l'invité n'existe pas, on affiche une page d'erreur 404
         if (!$guest) {
             throw $this->createNotFoundException('Invité introuvable.');
         }
 
+        // Inversion de l'état bloqué/débloqué de l'invité
         $guest->setBlocked(!$guest->isBlocked());
-        $em->flush();
+        $em->flush();// Enregistre les modifications en base de données
 
+        // Redirige vers la liste des invités après la mise à jour de l'état
         return $this->redirectToRoute('admin_guest_index');
     }
 
@@ -94,15 +107,19 @@ class GuestController extends AbstractController
     #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete')]
     public function delete(int $id, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
+        // Récupération de l'invité par son ID
         $guest = $userRepository->find($id);
 
+        // Si l'invité n'existe pas, on affiche une page d'erreur 404
         if (!$guest) {
             throw $this->createNotFoundException('Invité introuvable.');
         }
 
-        $em->remove($guest);
-        $em->flush();
+        // Suppression de l'invité (et des données liées - cascade configurée)
+        $em->remove($guest);// Prépare l'invité à être supprimé en base de données
+        $em->flush();// Enregistre la suppression en base de données
 
+        // Redirige vers la liste des invités après la suppression réussie
         return $this->redirectToRoute('admin_guest_index');
     }
 }
