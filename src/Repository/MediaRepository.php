@@ -16,6 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MediaRepository extends ServiceEntityRepository
 {
+    // Injection du ManagerRegistry et initialisation du repository Media
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Media::class);

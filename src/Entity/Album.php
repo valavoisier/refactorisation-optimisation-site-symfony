@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+// Représente un album contenant plusieurs médias (images) et pouvant être associé à un utilisateur
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
 {

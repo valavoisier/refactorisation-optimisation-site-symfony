@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
+// Représente un média (image) associé à un album et à un utilisateur
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 class Media
 {

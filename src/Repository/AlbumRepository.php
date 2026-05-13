@@ -16,6 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AlbumRepository extends ServiceEntityRepository
 {
+    // Injection du ManagerRegistry et initialisation du repository Album
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Album::class);
