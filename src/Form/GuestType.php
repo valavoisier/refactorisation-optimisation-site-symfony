@@ -14,10 +14,27 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 
+/**
+ * Formulaire d'ajout d'un invité.
+ *
+ * Rôle :
+ * - Permet de créer un utilisateur invité (ROLE_USER) depuis l'administration.
+ * - Gère la saisie du nom, email, mot de passe et description.
+ *
+ * Champs :
+ * - name          : nom de l'invité.
+ * - email         : adresse e-mail.
+ * - plainPassword : mot de passe non mappé, validé puis hashé dans le contrôleur.
+ * - description   : description optionnelle.
+ */
 class GuestType extends AbstractType
 {
+    /**
+     * Construction du formulaire Guest
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        // Ajout des champs du formulaire pour créer un invité
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Nom',
@@ -47,8 +64,12 @@ class GuestType extends AbstractType
         ;
     }
 
+    /**
+     * Configuration des options du formulaire
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
+        // Lie ce formulaire à l'entité User pour que les données soient automatiquement mappées
         $resolver->setDefaults([
             'data_class' => User::class,
         ]);
