@@ -18,7 +18,8 @@
                 <td>{{ album.name }}</td>
                 <td>
                     <a href="{{ path('admin_album_update', {id: album.id}) }}" class="btn btn-warning">Modifier</a>
-                    <a href="{{ path('admin_album_delete', {id: album.id}) }}" class="btn btn-danger">Supprimer</a>
+                    <a href="{{ path('admin_album_delete', {id: album.id}) }}" class="btn btn-danger"
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet album ?')">Supprimer</a>
                 </td>
             </tr>
         {% endfor %}
