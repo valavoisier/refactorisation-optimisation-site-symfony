@@ -32,7 +32,9 @@ class UserRepositoryTest extends KernelTestCase
 
     protected function setUp(): void
     {
+        // Boot le kernel pour accéder au conteneur et récupérer le UserRepository
         self::bootKernel();
+        // Récupère le UserRepository depuis le conteneur de services
         $this->repo = self::getContainer()->get(UserRepository::class);
     }
 
@@ -45,10 +47,14 @@ class UserRepositoryTest extends KernelTestCase
      */
     public function testFindAdminReturnsAdmin(): void
     {
+        // Récupère l'administrateur unique
         $admin = $this->repo->findAdmin();
 
+        // Vérifie que l'administrateur existe et a les bonnes propriétés
         $this->assertNotNull($admin);
+        // Vérifie que l'email de l'administrateur correspond à celui des fixtures
         $this->assertSame(AppFixtures::ADMIN_EMAIL, $admin->getUserIdentifier());
+        // Vérifie que l'administrateur a bien le rôle ROLE_ADMIN
         $this->assertContains('ROLE_ADMIN', $admin->getRoles());
     }
 
