@@ -3,7 +3,7 @@
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
-    bootstrap="vendor/autoload.php"
+    bootstrap="tests/bootstrap.php"
     colors="true"
     cacheDirectory=".phpunit.cache"
 >
@@ -33,6 +33,7 @@
 
     <php>
         <env name="APP_ENV" value="test"/>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
         <env name="SHELL_VERBOSITY" value="-1"/>
     </php>
 
