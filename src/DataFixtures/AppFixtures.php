@@ -12,9 +12,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class AppFixtures extends Fixture
 {
     public const ADMIN_EMAIL    = 'ina@zaoui.com';
-    public const ADMIN_PASSWORD = 'Admin1234!';
+    public const ADMIN_PASSWORD = 'Admin1234!@#';
     public const GUEST_EMAIL    = 'invite@example.com';
-    public const GUEST_PASSWORD = 'Guest1234!';
+    public const GUEST_PASSWORD = 'Guest1234!@#';
     public const BLOCKED_EMAIL  = 'blocked@example.com';
 
     public function __construct(private UserPasswordHasherInterface $hasher) {}
@@ -74,7 +74,7 @@ class AppFixtures extends Fixture
         $blocked->setRoles(['ROLE_USER']);
         $blocked->setBlocked(true);
         $blocked->setDescription('Cet invité a été bloqué.');
-        $blocked->setPassword($this->hasher->hashPassword($blocked, 'Blocked1234!'));
+        $blocked->setPassword($this->hasher->hashPassword($blocked, 'Blocked1234!@#'));
         $manager->persist($blocked);
 
         for ($i = 1; $i <= 2; $i++) {
