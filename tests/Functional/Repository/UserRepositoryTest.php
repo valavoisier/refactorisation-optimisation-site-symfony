@@ -4,7 +4,7 @@ namespace App\Tests\Functional\Repository;
 
 use App\DataFixtures\AppFixtures;
 use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — UserRepository
@@ -26,7 +26,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  * - Les invités bloqués doivent être invisibles sur le site public.
  *
  */
-class UserRepositoryTest extends KernelTestCase
+class UserRepositoryTest extends FunctionalTestCase
 {
     private UserRepository $repo;
 

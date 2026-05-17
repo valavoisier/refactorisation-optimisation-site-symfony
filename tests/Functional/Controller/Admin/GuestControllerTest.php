@@ -2,9 +2,7 @@
 
 namespace App\Tests\Functional\Controller\Admin;
 
-use App\DataFixtures\AppFixtures;
-use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — GuestController (espace admin)
@@ -27,7 +25,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * - L’admin doit pouvoir visualiser, créer, bloquer/débloquer et supprimer des invités.
  * - Les erreurs (ID inexistant) doivent être gérées proprement par une 404.
  */
-class GuestControllerTest extends WebTestCase
+class GuestControllerTest extends FunctionalTestCase
 {
     // ------------------------------------------------------------------ //
     //  Contrôle d'accès                                                   //
@@ -57,14 +55,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testIndexForbidsGuestUser(): void
     {
-        $client = static::createClient();
         // Récupération un utilisateur invité depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);        
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
-
         // Connexion de l'utilisateur invité
-        $client->loginUser($guest);
         // Tentative d'accès à la page d'administration des invités
+        $client = $this->createGuestClient();
         $client->request('GET', '/admin/guest');
 
         // L'accès doit être refusé avec un statut 403 Forbidden
@@ -76,14 +70,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testIndexIsAccessibleByAdmin(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Accès à la page d'administration des invités
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/guest');
 
         // La page doit se charger avec succès (200 OK)
@@ -102,14 +92,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testIndexDisplaysGuests(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Accès à la page d'administration avec la liste de l'ensemble des invités
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/guest');
 
         // La page doit se charger avec succès (200 OK)
@@ -127,14 +113,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testAddPageLoads(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Accès à la page de création d'un invité
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/guest/add');
 
         // La page doit se charger avec succès (200 OK)
@@ -151,14 +133,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testAddValidFormCreatesGuest(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Affichage du formulaire de création d'un invité
+        $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/admin/guest/add');
 
         // Remplissage du formulaire avec des données valides
@@ -186,17 +164,14 @@ class GuestControllerTest extends WebTestCase
      */
     public function testToggleInvertsBlockedState(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur et d'un invité actif depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
+        // Connexion de l'administrateur
+        $client = $this->createAdminClient();
+        $guest = $this->getActiveGuest();
 
         // On mémorise l'état initial de l'invité (bloqué ou non)
         $wasBlocked = $guest->isBlocked(); // false en fixtures
 
-        // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Appel de l'action toggle sur l'invité
         $client->request('GET', '/admin/guest/toggle/' . $guest->getId());
 
@@ -204,10 +179,10 @@ class GuestControllerTest extends WebTestCase
         $this->assertResponseRedirects('/admin/guest');
 
         // On vide le cache Doctrine pour relire l'état depuis la base
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $em = $this->getEntityManager();
         $em->clear();
         // On recharge l'utilisateur pour vérifier que l'état blocked a bien été inversé
-        $refreshed = $userRepo->find($guest->getId());
+        $refreshed = $this->getUserRepository()->find($guest->getId());
         $this->assertSame(!$wasBlocked, $refreshed->isBlocked());
     }
 
@@ -216,14 +191,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testToggleReturns404ForUnknownId(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Appel de toggle sur un ID invité inexistant
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/guest/toggle/99999');
 
         // Le contrôleur doit répondre par une 404
@@ -242,15 +213,11 @@ class GuestControllerTest extends WebTestCase
      */
     public function testDeleteRemovesGuest(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur et d'un invité bloqué depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-        $blocked = $userRepo->findOneBy(['email' => AppFixtures::BLOCKED_EMAIL]);
-        $blockedId = $blocked->getId();
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
+        $blocked = $this->getBlockedGuest();
+        $blockedId = $blocked->getId();
         // Appel de la route de suppression sur l'invité bloqué
         $client->request('GET', '/admin/guest/delete/' . $blockedId);
 
@@ -258,10 +225,10 @@ class GuestControllerTest extends WebTestCase
         $this->assertResponseRedirects('/admin/guest');
 
         // // On vide le cache Doctrine pour relire l'état depuis la base et vérifier que l'invité n'existe plus
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $em = $this->getEntityManager();
         $em->clear();
         // On tente de retrouver l'invité supprimé, qui doit être introuvable (null)
-        $deleted = $userRepo->find($blockedId);
+        $deleted = $this->getUserRepository()->find($blockedId);
         $this->assertNull($deleted);
     }
 
@@ -270,14 +237,10 @@ class GuestControllerTest extends WebTestCase
      */
     public function testDeleteReturns404ForUnknownId(): void
     {
-        $client = static::createClient();
         // Récupération de l'administrateur depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur
-        $client->loginUser($admin);
         // Appel de la route de suppression sur un ID inexistant
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/guest/delete/99999');
 
         // Le contrôleur doit répondre par une 404

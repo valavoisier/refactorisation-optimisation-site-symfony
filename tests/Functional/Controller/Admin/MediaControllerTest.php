@@ -2,10 +2,8 @@
 
 namespace App\Tests\Functional\Controller\Admin;
 
-use App\DataFixtures\AppFixtures;
 use App\Repository\MediaRepository;
-use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — MediaController (espace admin)
@@ -34,7 +32,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * - Les invités ne doivent jamais accéder aux médias d'autres utilisateurs.
  * - La suppression doit respecter les règles de sécurité et de propriété.
  */
-class MediaControllerTest extends WebTestCase
+class MediaControllerTest extends FunctionalTestCase
 {
     // ------------------------------------------------------------------ //
     //  Contrôle d'accès                                                   //
@@ -69,15 +67,10 @@ class MediaControllerTest extends WebTestCase
      */
     public function testIndexIsAccessibleByAdmin(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'administrateur depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'administration des médias.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/media');
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
@@ -92,14 +85,9 @@ class MediaControllerTest extends WebTestCase
      */
     public function testIndexIsAccessibleByGuest(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'invité depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
-
         // Connexion de l'invité et accès à la page d'administration des médias.
-        $client->loginUser($guest);
+        $client = $this->createGuestClient();
         $client->request('GET', '/admin/media');
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
@@ -111,15 +99,10 @@ class MediaControllerTest extends WebTestCase
      */
     public function testIndexShowsMediasForAdmin(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'administrateur depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'administration des médias.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/media');
 
         // Vérifie que la page charge correctement - succès (HTTP 200) et qu'elle affiche une table de médias.
@@ -137,15 +120,10 @@ class MediaControllerTest extends WebTestCase
      */
     public function testAddPageLoadsForAdmin(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'administrateur depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'administration des médias.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         // Envoi d'une requête GET pour accéder au formulaire d'ajout de média.
         $client->request('GET', '/admin/media/add');
 
@@ -160,15 +138,10 @@ class MediaControllerTest extends WebTestCase
      */
     public function testAddPageLoadsForGuest(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'invité depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'invité unique  par son email défini dans les fixtures.
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
-
         // Connexion de l'invité et accès à la page d'administration des médias.
-        $client->loginUser($guest);
+        $client = $this->createGuestClient();
         $client->request('GET', '/admin/media/add');
 
         // Vérifie que la page charge correctement - succès (HTTP 200) et qu'elle affiche un formulaire.
@@ -189,20 +162,15 @@ class MediaControllerTest extends WebTestCase
      */
     public function testAdminCanDeleteAnyMedia(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'administrateur depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Récupérer un média appartenant à l'invité actif
+        $client = $this->createAdminClient();
         $mediaRepo = static::getContainer()->get(MediaRepository::class);
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
+        $guest = $this->getActiveGuest();
         $media = $mediaRepo->findOneBy(['user' => $guest]);
 
         // Connexion de l'administrateur et tentative de suppression du média de l'invité.
-        $client->loginUser($admin);
         $client->request('GET', '/admin/media/delete/' . $media->getId());
 
         // Vérifie que l'administrateur est redirigé vers la liste des médias après la suppression.
@@ -217,18 +185,14 @@ class MediaControllerTest extends WebTestCase
      */
     public function testGuestCanDeleteOwnMedia(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'invité depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
-
         // Récupération d'un média appartenant à l'invité.
+        $client = $this->createGuestClient();
         $mediaRepo = static::getContainer()->get(MediaRepository::class);
+        $guest = $this->getActiveGuest();
         $media = $mediaRepo->findOneBy(['user' => $guest]);
 
         // Connexion de l'invité et tentative de suppression de son propre média.
-        $client->loginUser($guest);
         $client->request('GET', '/admin/media/delete/' . $media->getId());
 
         // Vérifie que l'invité est redirigé vers la liste des médias après la suppression.
@@ -243,21 +207,16 @@ class MediaControllerTest extends WebTestCase
      */
     public function testGuestCannotDeleteOtherUserMedia(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'invité depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'invité unique  par son email défini dans les fixtures.
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Récupérer un média appartenant à l'admin
+        $client = $this->createGuestClient();
+        $admin = $this->getAdmin();
         $mediaRepo = static::getContainer()->get(MediaRepository::class);
         $adminMedia = $mediaRepo->findOneBy(['user' => $admin]);
 
         // Connexion de l'invité et tentative de suppression du média de l'administrateur.
-        $client->loginUser($guest);
         $client->request('GET', '/admin/media/delete/' . $adminMedia->getId());
 
         // Vérifie que l'invité reçoit une réponse 403 Forbidden.
@@ -269,15 +228,10 @@ class MediaControllerTest extends WebTestCase
      */
     public function testDeleteReturns404ForUnknownId(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération de l'administrateur depuis le UserRepository pour se connecter.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et tentative de suppression d'un média avec un ID inexistant.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/media/delete/99999');
 
         // Vérifie que la réponse est 404 Not Found.

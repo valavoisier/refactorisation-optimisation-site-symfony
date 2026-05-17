@@ -3,8 +3,7 @@
 namespace App\Tests\Functional\Controller;
 
 use App\DataFixtures\AppFixtures;
-use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — HomeController (front office public)
@@ -34,7 +33,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * - Le portfolio est la vitrine principale : il doit toujours être accessible.
  * - Les pages statiques doivent fonctionner sans erreur (accueil, à propos).
  */
-class HomeControllerTest extends WebTestCase
+class HomeControllerTest extends FunctionalTestCase
 {
     // ------------------------------------------------------------------ //
     //  Pages statiques                                                     //
@@ -142,8 +141,7 @@ class HomeControllerTest extends WebTestCase
         // Création d'un client HTTP pour simuler un visiteur non authentifié
         $client = static::createClient();
         // Récupération du repository User pour obtenir l'invité actif depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
+        $guest = $this->getActiveGuest();
 
         // Envoi d'une requête GET à la page de profil de l'invité actif
         $client->request('GET', '/guest/' . $guest->getId());
@@ -163,8 +161,7 @@ class HomeControllerTest extends WebTestCase
         // Création d'un client HTTP pour simuler un visiteur non authentifié
         $client = static::createClient();
         // Récupération du repository User pour obtenir l'invité bloqué depuis les fixtures
-        $userRepo = static::getContainer()->get(UserRepository::class);
-        $blocked = $userRepo->findOneBy(['email' => AppFixtures::BLOCKED_EMAIL]);
+        $blocked = $this->getBlockedGuest();
 
         // Envoi d'une requête GET à la page de profil de l'invité bloqué
         $client->request('GET', '/guest/' . $blocked->getId());

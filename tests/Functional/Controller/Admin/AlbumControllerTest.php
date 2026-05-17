@@ -2,10 +2,8 @@
 
 namespace App\Tests\Functional\Controller\Admin;
 
-use App\DataFixtures\AppFixtures;
 use App\Repository\AlbumRepository;
-use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — AlbumController (espace admin)
@@ -31,7 +29,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * - Seul l’administrateur peut créer, modifier ou supprimer des albums.
  * - Les invités ne doivent jamais accéder à ces fonctionnalités.
  */
-class AlbumControllerTest extends WebTestCase
+class AlbumControllerTest extends FunctionalTestCase
 {
     // ------------------------------------------------------------------ //
     //  Contrôle d'accès                                                   //
@@ -62,15 +60,10 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testIndexForbidsGuestUser(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver un utilisateur invité.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère un utilisateur invité (sans ROLE_ADMIN) par son email défini dans les fixtures.
-        $guest = $userRepo->findOneBy(['email' => AppFixtures::GUEST_EMAIL]);
-
         //  Connexion de l'invité et tentative d'accès à la page d'administration des albums.
-        $client->loginUser($guest);
+        $client = $this->createGuestClient();
         $client->request('GET', '/admin/album');
 
         // Vérifie le refus d'accès - réponse est 403 Forbidden.
@@ -85,15 +78,10 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testIndexIsAccessibleByAdmin(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'administration des albums.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/album');
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
@@ -112,21 +100,15 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testIndexDisplaysAlbums(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'administration des albums.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/album');
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
         $this->assertResponseIsSuccessful();
         // Vérifie que la page contient un tableau listant les albums.
-         $this->assertSelectorExists('table');
         $this->assertSelectorExists('table');
     }
 
@@ -142,15 +124,10 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testAddPageLoads(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email défini dans les fixtures.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'ajout d'album.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $client->request('GET', '/admin/album/add');
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
@@ -167,15 +144,10 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testAddValidFormCreatesAlbum(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Connexion de l'administrateur et accès à la page d'ajout d'album.
-        $client->loginUser($admin);
+        $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/admin/album/add');
 
         // Soumission du formulaire avec un nom d'album unique pour éviter les conflits.
@@ -201,20 +173,15 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testUpdatePageLoads(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
-
         // Récupération du repository des albums pour obtenir un album existant.
-        $albumRepo = static::getContainer()->get(AlbumRepository::class);
+        $client = $this->createAdminClient();
         // Récupère le premier album trouvé en base de données pour le test.
+        $albumRepo = static::getContainer()->get(AlbumRepository::class);
         $album = $albumRepo->findOneBy([]);
 
         // Connexion de l'administrateur et accès à la page de modification de l'album.
-        $client->loginUser($admin);
         $client->request('GET', '/admin/album/update/' . $album->getId());
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
@@ -231,19 +198,15 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testUpdateValidFormSavesAlbum(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique  par son email.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
         // Récupération du repository des albums pour obtenir un album existant.
-        $albumRepo = static::getContainer()->get(AlbumRepository::class);
+        $client = $this->createAdminClient();
         // Récupère le premier album trouvé en base de données pour modification.
+        $albumRepo = static::getContainer()->get(AlbumRepository::class);
         $album = $albumRepo->findOneBy([]);
 
         // Connexion de l'administrateur et accès à la page de modification de cet album.
-        $client->loginUser($admin);
         $crawler = $client->request('GET', '/admin/album/update/' . $album->getId());
 
         // Soumission du formulaire de modification avec un nouveau nom d'album.
@@ -269,15 +232,12 @@ class AlbumControllerTest extends WebTestCase
      */
     public function testDeleteRemovesAlbum(): void
     {
-        // Création d'un client HTTP pour simuler un utilisateur authentifié.
-        $client = static::createClient();
         // Récupération du UserRepository pour trouver l'administrateur.
-        $userRepo = static::getContainer()->get(UserRepository::class);
         // Récupère l'administrateur unique par son email.
-        $admin = $userRepo->findOneBy(['email' => AppFixtures::ADMIN_EMAIL]);
 
         // Créer un album dédié à la suppression pour ne pas casser les autres tests
-        $em = static::getContainer()->get('doctrine')->getManager();
+        $client = $this->createAdminClient();
+        $em = $this->getEntityManager();
         $album = new \App\Entity\Album();
         $album->setName('Album à supprimer');
         $em->persist($album);
@@ -286,7 +246,6 @@ class AlbumControllerTest extends WebTestCase
         $albumId = $album->getId();
 
         // Connexion de l'administrateur et tentative de suppression de cet album.
-        $client->loginUser($admin);
         $client->request('GET', '/admin/album/delete/' . $albumId);
 
         // Vérifie que la suppression redirige vers la liste des albums.
