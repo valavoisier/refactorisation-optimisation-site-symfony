@@ -42,7 +42,7 @@ class MediaController extends AbstractController
             $criteria['user'] = $this->getUser();
         }
         // Replace le média uploadé en fin de liste de chaque utilisateur concerné
-        // Récupération des médias triés par utilisateur puis par ID
+        // Récupération des médias triés par utilisateur puis par ID / remplace ['id' => 'ASC'],
         // Pagination : 25 médias par page
         $medias = $mediaRepository->findBy(
             $criteria,
@@ -51,7 +51,8 @@ class MediaController extends AbstractController
             25 * ($page - 1)
         );
         // Récupération du nombre total de médias pour la pagination
-        $total = $mediaRepository->count([]);
+        // Correction bug pagination invité provoqué par spécifique$total = $mediaRepository->count([]); 
+        $total = $mediaRepository->count($criteria);
 
         // Affichage de la page d'administration des médias avec les données récupérées
         return $this->render('admin/media/index.html.twig', [
