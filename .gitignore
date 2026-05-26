@@ -17,6 +17,4 @@
 coverage/
 .phpunit.cache/
 projet-15.txt
-album.sql
-media.sql
-user.sql
+consignes-documentations.txt

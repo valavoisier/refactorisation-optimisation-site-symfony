@@ -113,7 +113,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Retourne les invités actifs (non bloqués) avec leurs médias chargés.
+     * Retourne les invités actifs (non bloqués) avec leurs médias chargés (page front/guests.html.twig).
      *
       * LEFT JOIN FETCH charge utilisateurs et médias en une seule requête,
      * évitant le N+1. Le filtre "blocked" est appliqué en DQL, tandis que
