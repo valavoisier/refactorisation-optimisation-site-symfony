@@ -98,6 +98,9 @@ main
    - Une description expliquant le pourquoi et les choix techniques
    - La référence à l'issue associée (`Closes #XX`)
 6. Vérifier que le pipeline CI passe au vert avant de merger
+   La CI utilisée est GitHub Actions. Le workflow est défini dans 
+   `.github/workflows/ci.yml` et s’exécute automatiquement à chaque Pull Request.
+
 
 ---
 

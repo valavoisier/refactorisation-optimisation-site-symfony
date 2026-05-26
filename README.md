@@ -10,6 +10,7 @@ Le projet propose un Front Office permettant la consultation des albums, ainsi q
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Tests](#tests)
+- [Intégration Continue](#intégration-continue)
 - [Architecture & choix d'implémentation](#architecture--choix-dimplémentation)
 
 ---
@@ -161,6 +162,7 @@ php bin/console doctrine:database:create --env=test
 php bin/console doctrine:migrations:migrate --env=test
 php bin/console doctrine:fixtures:load --env=test
 ```
+! L’environnement de test doit être isolé afin que les tests n’affectent jamais la base de données réelle.
 
 ### Lancer les tests
 
@@ -181,6 +183,17 @@ php bin/phpunit tests/Functional/
 > Le rapport de couverture est généré dans le répertoire `coverage/`. La couverture actuelle est de **75.32 %** (232/308 lignes) — au-dessus de la cible de 70 %.
 
 ---
+
+## Intégration continue
+
+Ce projet utilise **GitHub Actions** pour automatiser :
+
+- les tests
+- l’analyse statique
+- la vérification du style de code
+
+Le workflow est défini dans : .github/workflows/ci.yml
+Il s’exécute automatiquement à chaque **push** et **Pull Request**.
 
 ## Architecture & choix d'implémentation
 
