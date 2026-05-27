@@ -71,4 +71,4 @@ jobs:
         run: php bin/console doctrine:fixtures:load --no-interaction --purge-with-truncate
 
       - name: PHPUnit
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --no-coverage
