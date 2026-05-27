@@ -228,6 +228,87 @@ L'accès aux routes est contrôlé à deux niveaux :
 1. **`access_control`** dans `security.yaml` : règles globales par préfixe d'URL
 2. **Contrôleurs** : vérification fine (ex. un invité ne peut supprimer que ses propres médias)
 
+### User Provider — chargement depuis la base de données
+
+La configuration `providers` dans `security.yaml` indique à Symfony comment charger un utilisateur lors de l'authentification :
+
+```yaml
+# config/packages/security.yaml
+providers:
+    app_user_provider:
+        entity:
+            class: App\Entity\User
+            property: email   # identifiant de connexion = adresse e-mail
+```
+
+Lors du login, Symfony appelle automatiquement `UserRepository::loadUserByIdentifier($email)` (fourni par `EntityUserProvider`), charge l'entité `User` depuis PostgreSQL et vérifie ensuite le mot de passe hashé.
+
+Le `UserRepository` implémente également `PasswordUpgraderInterface` : si l'algorithme de hashage configuré change, Symfony rehash silencieusement le mot de passe au prochain login sans action manuelle.
+
+### Architecture des contrôleurs
+
+```
+src/Controller/
+├── HomeController.php          ← Front Office (pages publiques)
+└── Admin/
+    ├── SecurityController.php  ← Login / Logout
+    ├── AlbumController.php     ← CRUD albums (ROLE_ADMIN)
+    ├── MediaController.php     ← CRUD médias (ROLE_USER + vérification propriétaire)
+    └── GuestController.php     ← CRUD invités (ROLE_ADMIN)
+```
+
+| Contrôleur | Rôle requis | Responsabilité |
+|---|---|---|
+| `HomeController` | public | Accueil, liste invités, portfolio, à propos |
+| `SecurityController` | — | Formulaire de connexion / déconnexion |
+| `AlbumController` | `ROLE_ADMIN` | Créer, modifier, supprimer les albums |
+| `MediaController` | `ROLE_USER` | Ajouter / supprimer ses propres médias ; Ina peut tout gérer |
+| `GuestController` | `ROLE_ADMIN` | Lister, ajouter, bloquer/débloquer, supprimer les invités |
+
+La protection d'accès est appliquée à **deux niveaux** : globalement dans `access_control` (security.yaml) pour tous les préfixes `/admin/*`, et localement via l'attribut `#[IsGranted]` sur chaque action pour les vérifications fines (ex. un invité ne peut supprimer que ses propres médias).
+
+### Structure des templates
+
+```
+templates/
+├── base.html.twig          ← Layout racine (balises HTML, assets communs)
+├── front.html.twig         ← Layout Front Office (extends base)
+├── admin.html.twig         ← Layout Back Office (extends base)
+├── front/
+│   ├── home.html.twig
+│   ├── guests.html.twig    ← Liste des invités actifs
+│   ├── guest.html.twig     ← Galerie d'un invité
+│   ├── portfolio.html.twig
+│   └── about.html.twig
+└── admin/
+    ├── security/           ← login.html.twig
+    ├── album/              ← index, add, edit
+    ├── media/              ← index, add
+    └── guest/              ← index, add
+```
+
+Chaque page hérite d'un layout dédié (`front.html.twig` ou `admin.html.twig`) qui hérite lui-même de `base.html.twig`. Cela permet d'avoir deux chartes graphiques distinctes (site public vs espace admin) sans dupliquer la structure HTML de base.
+
+### Optimisation N+1 — chargement des invités
+
+La page publique `/guests` charge les invités actifs **et leurs médias** en une seule requête SQL grâce à un `LEFT JOIN FETCH` Doctrine dans `findActiveGuests()` :
+
+```php
+// UserRepository::findActiveGuests()
+$this->createQueryBuilder('u')
+    ->leftJoin('u.medias', 'm')
+    ->addSelect('m')                        // hydrate les médias dans la même requête
+    ->where('u.blocked = :blocked')
+    ->setParameter('blocked', false)        // filtre les invités actifs
+    ->orderBy('u.id', 'ASC')
+    ->getQuery()
+    ->getResult();
+```
+
+Sans ce `addSelect('m')`, Doctrine émettrait une requête SQL supplémentaire par invité pour charger ses médias (problème N+1), ce qui rendrait la page de plus en plus lente à mesure que le nombre d'invités augmente.
+
+La même approche est appliquée dans `findGuests()` (liste d'administration), qui charge tous les invités (actifs et bloqués) avec leurs médias en une seule requête.
+
 ### Migration Symfony 5.4 → 7.4
 
 Le projet a été migré depuis Symfony 5.4 (fin 2021) vers **[Symfony 7.4 LTS](https://symfony.com/releases/7.4)**, la version courante à support long terme :
