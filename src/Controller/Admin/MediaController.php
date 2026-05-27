@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Media;
+use App\Entity\User;
 use App\Form\MediaType;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -79,7 +80,9 @@ class MediaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Si l'utilisateur n'est pas admin, on associe le média à l'utilisateur connecté
             if (!$this->isGranted('ROLE_ADMIN')) {
-                $media->setUser($this->getUser());
+                $user = $this->getUser();
+                assert($user instanceof User);
+                $media->setUser($user);
             }
             // Génère un nom de fichier unique pour éviter les collisions et stocke le média dans le dossier "uploads"
             $media->setPath('uploads/' . md5(uniqid()) . '.' . $media->getFile()->guessExtension());

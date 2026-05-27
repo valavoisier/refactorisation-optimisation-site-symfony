@@ -50,9 +50,8 @@ class UserCheckerTest extends TestCase
         $user->setBlocked(false);
 
         // Aucune exception attendue
+        $this->expectNotToPerformAssertions();
         $this->checker->checkPreAuth($user);
-        // Assertion neutre pour marquer explicitement le test comme réussi
-        $this->assertTrue(true); 
     }
 
     /**
@@ -67,8 +66,8 @@ class UserCheckerTest extends TestCase
         $otherUser = $this->createMock(UserInterface::class);
 
         // Aucune exception attendue
+        $this->expectNotToPerformAssertions();
         $this->checker->checkPreAuth($otherUser);
-        $this->assertTrue(true);
     }
 
     /**
@@ -85,7 +84,7 @@ class UserCheckerTest extends TestCase
         $user = new User();
 
         // Aucune exception attendue
+        $this->expectNotToPerformAssertions();
         $this->checker->checkPostAuth($user);
-        $this->assertTrue(true);
     }
 }

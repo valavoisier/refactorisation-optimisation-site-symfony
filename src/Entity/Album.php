@@ -15,6 +15,7 @@ class Album
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column]
@@ -22,6 +23,7 @@ class Album
     #[Assert\Length(max: 100, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.')]
     private string $name;
 
+    /** @var Collection<int, Media> */
     #[ORM\OneToMany(
         targetEntity: Media::class,
         mappedBy: 'album',

@@ -82,9 +82,8 @@ class MediaDeleteListenerTest extends TestCase
         $listener = new MediaDeleteListener($this->tmpDir);
 
         // Aucune exception  ne doit être levée même si le fichier n'existe pas
+        $this->expectNotToPerformAssertions();
         $listener->preRemove($media);
-        // Assertion neutre pour marquer explicitement le test comme réussi (aucune exception levée)
-        $this->assertTrue(true);
     }
 
     // --- Helpers ---
