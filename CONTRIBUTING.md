@@ -76,7 +76,7 @@ test(controller): add functional tests for home routes
 docs(readme): update installation instructions
 ```
 
-- Message en **anglais**, à l'impératif, sans majuscule initiale ni point final
+- Message en **anglais** de préférence (ou en français), à l'impératif, sans majuscule initiale ni point final
 - Limiter la première ligne à 72 caractères
 - Référencer l'issue si applicable : `fix(auth): prevent blocked user login (closes #12)`
 
