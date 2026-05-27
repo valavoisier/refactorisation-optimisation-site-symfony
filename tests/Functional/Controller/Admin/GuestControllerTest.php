@@ -6,7 +6,7 @@ use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — GuestController (espace admin)
- * ==================================================
+ * ==================================================.
  *
  * Objectif :
  * ----------
@@ -141,8 +141,8 @@ class GuestControllerTest extends FunctionalTestCase
 
         // Remplissage du formulaire avec des données valides
         $form = $crawler->selectButton('Créer l\'invité')->form([
-            'guest[name]'          => 'Nouveau Invité',
-            'guest[email]'         => 'nouveau@example.com',
+            'guest[name]' => 'Nouveau Invité',
+            'guest[email]' => 'nouveau@example.com',
             'guest[plainPassword]' => 'Secure1234!@#',
         ]);
         // Soumission du formulaire
@@ -173,7 +173,7 @@ class GuestControllerTest extends FunctionalTestCase
         $wasBlocked = $guest->isBlocked(); // false en fixtures
 
         // Appel de l'action toggle sur l'invité
-        $client->request('GET', '/admin/guest/toggle/' . $guest->getId());
+        $client->request('GET', '/admin/guest/toggle/'.$guest->getId());
 
         // Après le toggle, l'admin est redirigé vers la liste des invités
         $this->assertResponseRedirects('/admin/guest');
@@ -219,7 +219,7 @@ class GuestControllerTest extends FunctionalTestCase
         $blocked = $this->getBlockedGuest();
         $blockedId = $blocked->getId();
         // Appel de la route de suppression sur l'invité bloqué
-        $client->request('GET', '/admin/guest/delete/' . $blockedId);
+        $client->request('GET', '/admin/guest/delete/'.$blockedId);
 
         // L'action redirige vers la liste des invités
         $this->assertResponseRedirects('/admin/guest');

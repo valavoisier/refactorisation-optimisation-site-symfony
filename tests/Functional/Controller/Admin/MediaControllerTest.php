@@ -7,7 +7,7 @@ use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — MediaController (espace admin)
- * ===================================================
+ * ===================================================.
  *
  * Objectif :
  * ----------
@@ -107,7 +107,7 @@ class MediaControllerTest extends FunctionalTestCase
 
         // Vérifie que la page charge correctement - succès (HTTP 200) et qu'elle affiche une table de médias.
         $this->assertResponseIsSuccessful();
-        //Vérifie qu'un tableau de médias est présent (médias sont affichés).
+        // Vérifie qu'un tableau de médias est présent (médias sont affichés).
         $this->assertSelectorExists('table');
     }
 
@@ -171,10 +171,10 @@ class MediaControllerTest extends FunctionalTestCase
         $media = $mediaRepo->findOneBy(['user' => $guest]);
 
         // Connexion de l'administrateur et tentative de suppression du média de l'invité.
-        $client->request('GET', '/admin/media/delete/' . $media->getId());
+        $client->request('GET', '/admin/media/delete/'.$media->getId());
 
         // Vérifie que l'administrateur est redirigé vers la liste des médias après la suppression.
-         $this->assertResponseRedirects('/admin/media');
+        $this->assertResponseRedirects('/admin/media');
     }
 
     /**
@@ -193,7 +193,7 @@ class MediaControllerTest extends FunctionalTestCase
         $media = $mediaRepo->findOneBy(['user' => $guest]);
 
         // Connexion de l'invité et tentative de suppression de son propre média.
-        $client->request('GET', '/admin/media/delete/' . $media->getId());
+        $client->request('GET', '/admin/media/delete/'.$media->getId());
 
         // Vérifie que l'invité est redirigé vers la liste des médias après la suppression.
         $this->assertResponseRedirects('/admin/media');
@@ -217,7 +217,7 @@ class MediaControllerTest extends FunctionalTestCase
         $adminMedia = $mediaRepo->findOneBy(['user' => $admin]);
 
         // Connexion de l'invité et tentative de suppression du média de l'administrateur.
-        $client->request('GET', '/admin/media/delete/' . $adminMedia->getId());
+        $client->request('GET', '/admin/media/delete/'.$adminMedia->getId());
 
         // Vérifie que l'invité reçoit une réponse 403 Forbidden.
         $this->assertResponseStatusCodeSame(403);

@@ -8,7 +8,7 @@ use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — UserRepository
- * ===================================
+ * ===================================.
  *
  * Objectif :
  * ----------
@@ -24,7 +24,6 @@ use App\Tests\Functional\FunctionalTestCase;
  * - L’admin est indispensable pour accéder au Back Office.
  * - Les invités actifs alimentent la page publique /guests.
  * - Les invités bloqués doivent être invisibles sur le site public.
- *
  */
 class UserRepositoryTest extends FunctionalTestCase
 {
@@ -111,7 +110,7 @@ class UserRepositoryTest extends FunctionalTestCase
         $activeGuests = $this->repo->findActiveGuests();
 
         // Vérifie que l'invité bloqué (BLOCKED_EMAIL) n'est pas présent dans la liste des invités actifs
-        $emails = array_map(fn($u) => $u->getUserIdentifier(), $activeGuests);
+        $emails = array_map(fn ($u) => $u->getUserIdentifier(), $activeGuests);
         // L'invité bloqué ne doit pas être dans la liste des invités actifs
         $this->assertNotContains(AppFixtures::BLOCKED_EMAIL, $emails);
     }

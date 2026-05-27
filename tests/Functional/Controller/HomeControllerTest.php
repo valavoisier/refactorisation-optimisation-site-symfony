@@ -7,7 +7,7 @@ use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — HomeController (front office public)
- * =========================================================
+ * =========================================================.
  *
  * Objectif :
  * ----------
@@ -120,7 +120,7 @@ class HomeControllerTest extends FunctionalTestCase
         // Vérifie que la page charge correctement - succès (HTTP 200)
         $this->assertResponseIsSuccessful();
         // Vérifie que l'invité bloqué n'apparaît pas via son attribut data-email
-        $this->assertSelectorNotExists('[data-email="' . AppFixtures::BLOCKED_EMAIL . '"]');
+        $this->assertSelectorNotExists('[data-email="'.AppFixtures::BLOCKED_EMAIL.'"]');
         // Vérifie également que son nom n'apparaît pas dans le contenu HTML
         $content = $client->getResponse()->getContent();
         $this->assertStringNotContainsString('Invité Bloqué', $content);
@@ -144,7 +144,7 @@ class HomeControllerTest extends FunctionalTestCase
         $guest = $this->getActiveGuest();
 
         // Envoi d'une requête GET à la page de profil de l'invité actif
-        $client->request('GET', '/guest/' . $guest->getId());
+        $client->request('GET', '/guest/'.$guest->getId());
 
         // Vérifie que la page charge correctement - succès (HTTP 200)
         $this->assertResponseIsSuccessful();
@@ -164,7 +164,7 @@ class HomeControllerTest extends FunctionalTestCase
         $blocked = $this->getBlockedGuest();
 
         // Envoi d'une requête GET à la page de profil de l'invité bloqué
-        $client->request('GET', '/guest/' . $blocked->getId());
+        $client->request('GET', '/guest/'.$blocked->getId());
 
         // Vérifie que la page retourne 404
         $this->assertResponseStatusCodeSame(404);
@@ -221,7 +221,7 @@ class HomeControllerTest extends FunctionalTestCase
         $album = $albumRepo->findOneBy([]);
 
         // Envoi d'une requête GET à la page du portfolio filtré par l'ID de l'album
-        $client->request('GET', '/portfolio/' . $album->getId());
+        $client->request('GET', '/portfolio/'.$album->getId());
 
         // Vérifie que la page charge correctement - succès (HTTP 200)
         $this->assertResponseIsSuccessful();

@@ -28,7 +28,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class MediaType extends AbstractType
 {
     /**
-     * Construction du formulaire Media
+     * Construction du formulaire Media.
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -64,15 +64,15 @@ class MediaType extends AbstractType
     }
 
     /**
-    * Configuration des options du formulaire
-    */
+     * Configuration des options du formulaire.
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         // Lie ce formulaire à l'entité Media pour que les données soient automatiquement mappées
         // Ajoute une option "is_admin" pour conditionner l'affichage de certains champs
         $resolver->setDefaults([
             'data_class' => Media::class,
-            'is_admin' => false,// Par défaut, on considère que l'utilisateur n'est pas admin
+            'is_admin' => false, // Par défaut, on considère que l'utilisateur n'est pas admin
         ]);
     }
 }

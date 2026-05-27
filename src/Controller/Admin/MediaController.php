@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class MediaController extends AbstractController
 {
     /**
-     * Route pour afficher la liste des médias
+     * Route pour afficher la liste des médias.
      */
     #[Route('/admin/media', name: 'admin_media_index')]
     public function index(Request $request, MediaRepository $mediaRepository): Response
@@ -52,19 +52,19 @@ class MediaController extends AbstractController
             25 * ($page - 1)
         );
         // Récupération du nombre total de médias pour la pagination
-        // Correction bug pagination invité provoqué par spécifique$total = $mediaRepository->count([]); 
+        // Correction bug pagination invité provoqué par spécifique$total = $mediaRepository->count([]);
         $total = $mediaRepository->count($criteria);
 
         // Affichage de la page d'administration des médias avec les données récupérées
         return $this->render('admin/media/index.html.twig', [
             'medias' => $medias,
             'total' => $total,
-            'page' => $page
+            'page' => $page,
         ]);
     }
 
     /**
-     * Route pour ajouter un nouveau média
+     * Route pour ajouter un nouveau média.
      */
     #[Route('/admin/media/add', name: 'admin_media_add')]
     public function add(Request $request, EntityManagerInterface $em): Response
@@ -85,11 +85,11 @@ class MediaController extends AbstractController
                 $media->setUser($user);
             }
             // Génère un nom de fichier unique pour éviter les collisions et stocke le média dans le dossier "uploads"
-            $media->setPath('uploads/' . md5(uniqid()) . '.' . $media->getFile()->guessExtension());
+            $media->setPath('uploads/'.md5(uniqid()).'.'.$media->getFile()->guessExtension());
             // Déplace le fichier uploadé vers le dossier "uploads" avec le nom généré
             $media->getFile()->move('uploads/', $media->getPath());
-            $em->persist($media);// Prépare le média à être enregistré en base de données
-            $em->flush();// Enregistre le média en base de données
+            $em->persist($media); // Prépare le média à être enregistré en base de données
+            $em->flush(); // Enregistre le média en base de données
 
             // Redirige vers la liste des médias après l'ajout réussi
             return $this->redirectToRoute('admin_media_index');
@@ -100,7 +100,7 @@ class MediaController extends AbstractController
     }
 
     /**
-     * Route pour supprimer un média existant
+     * Route pour supprimer un média existant.
      */
     #[Route('/admin/media/delete/{id}', name: 'admin_media_delete')]
     public function delete(
@@ -120,8 +120,8 @@ class MediaController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce média.');
         }
 
-        $em->remove($media);// Prépare le média à être supprimé en base de données
-        $em->flush();// Enregistre la suppression en base de données
+        $em->remove($media); // Prépare le média à être supprimé en base de données
+        $em->flush(); // Enregistre la suppression en base de données
 
         // Redirige vers la liste des médias après la suppression réussie
         return $this->redirectToRoute('admin_media_index');

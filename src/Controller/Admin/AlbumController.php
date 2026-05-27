@@ -28,7 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AlbumController extends AbstractController
 {
     /**
-     * Route pour afficher la liste des albums de l'administrateur
+     * Route pour afficher la liste des albums de l'administrateur.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/album', name: 'admin_album_index')]
@@ -42,7 +42,7 @@ class AlbumController extends AbstractController
     }
 
     /**
-     * Route pour ajouter un nouvel album
+     * Route pour ajouter un nouvel album.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/album/add', name: 'admin_album_add')]
@@ -57,18 +57,19 @@ class AlbumController extends AbstractController
 
         // Vérifie si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($album);// Prépare l'album à être enregistré en base de données
-            $em->flush();// Enregistre l'album en base de données
+            $em->persist($album); // Prépare l'album à être enregistré en base de données
+            $em->flush(); // Enregistre l'album en base de données
 
             // Redirige vers la liste des albums après l'ajout réussi
             return $this->redirectToRoute('admin_album_index');
         }
-        // Affiche le formulaire d'ajout d'album 
+
+        // Affiche le formulaire d'ajout d'album
         return $this->render('admin/album/add.html.twig', ['form' => $form]);
     }
 
     /**
-     * Route pour mettre à jour un album existant
+     * Route pour mettre à jour un album existant.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/album/update/{id}', name: 'admin_album_update')]
@@ -83,7 +84,7 @@ class AlbumController extends AbstractController
 
         // Si le formulaire est soumis et valide → mise à jour
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();// Enregistre les modifications en base de données
+            $em->flush(); // Enregistre les modifications en base de données
 
             // Redirige vers la liste des albums après la mise à jour réussie
             return $this->redirectToRoute('admin_album_index');
@@ -93,7 +94,7 @@ class AlbumController extends AbstractController
     }
 
     /**
-     * Route pour supprimer un album existant
+     * Route pour supprimer un album existant.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/album/delete/{id}', name: 'admin_album_delete')]
@@ -103,7 +104,7 @@ class AlbumController extends AbstractController
         $album = $albumRepository->find($id);
         // Suppression de l'album (les médias liés seront supprimés automatiquement grâce au cascade remove définis dans l'entité)
         $em->remove($album);
-        $em->flush();// Enregistre la suppression en base de données
+        $em->flush(); // Enregistre la suppression en base de données
 
         // Redirige vers la liste des albums après la suppression réussie
         return $this->redirectToRoute('admin_album_index');

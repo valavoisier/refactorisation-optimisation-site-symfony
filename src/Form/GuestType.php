@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 class GuestType extends AbstractType
 {
     /**
-     * Construction du formulaire Guest
+     * Construction du formulaire Guest.
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -65,7 +65,7 @@ class GuestType extends AbstractType
     }
 
     /**
-     * Configuration des options du formulaire
+     * Configuration des options du formulaire.
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
