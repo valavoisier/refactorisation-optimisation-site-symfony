@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+
 /**
  * Contrôleur principal du site public.
  *
@@ -37,9 +38,10 @@ class HomeController extends AbstractController
     {
         // Récupération des invités actifs (non bloqués) depuis le repository User
         $guests = $userRepository->findActiveGuests();
+
         // Affichage de la page des invités avec les données récupérées
         return $this->render('front/guests.html.twig', [
-            'guests' => $guests
+            'guests' => $guests,
         ]);
     }
 
@@ -57,7 +59,7 @@ class HomeController extends AbstractController
 
         // Affichage de la page de détails de l'invité avec les données récupérées
         return $this->render('front/guest.html.twig', [
-            'guest' => $guest
+            'guest' => $guest,
         ]);
     }
 
@@ -77,11 +79,12 @@ class HomeController extends AbstractController
         $medias = $album
             ? $mediaRepository->findByAlbum($album)
             : $mediaRepository->findByUser($user);
+
         // Envoie les données à la vue
         return $this->render('front/portfolio.html.twig', [
             'albums' => $albums,
             'album' => $album,
-            'medias' => $medias
+            'medias' => $medias,
         ]);
     }
 

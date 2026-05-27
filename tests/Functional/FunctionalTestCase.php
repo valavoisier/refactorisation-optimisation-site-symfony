@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Classe de base abstraite pour tous les tests fonctionnels.
-*
+ *
  * Rôle :
  * - Fournir les utilisateurs des fixtures (admin, invité actif, invité bloqué)
  * - Fournir un accès simplifié au UserRepository et à l’EntityManager
@@ -26,18 +26,17 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * - getEntityManager()   : retourne l'EntityManager depuis le conteneur.
  * - createAdminClient()  : crée un client HTTP et authentifie immédiatement l'administrateur.
  * - createGuestClient()  : crée un client HTTP et authentifie immédiatement l'invité actif.
- * 
+ *
  * Note :
  * setUp() n’est pas utilisé car il exécuterait du code avant createClient(),
  * provoquant un double démarrage du kernel et cassant l’isolation des tests.
  * - Les helpers (getAdmin(), createAdminClient(), etc.) sont donc appelés directement
  *   dans les tests, après createClient(), ce qui respecte l’ordre correct de WebTestCase.
  */
-
 abstract class FunctionalTestCase extends WebTestCase
 {
     /**
-     * Retourne l'administrateur défini dans les fixtures (ROLE_ADMIN).      
+     * Retourne l'administrateur défini dans les fixtures (ROLE_ADMIN).
      */
     protected function getAdmin(): User
     {
@@ -47,7 +46,7 @@ abstract class FunctionalTestCase extends WebTestCase
     }
 
     /**
-     * Retourne l'invité actif (non bloqué) défini dans les fixtures.     
+     * Retourne l'invité actif (non bloqué) défini dans les fixtures.
      */
     protected function getActiveGuest(): User
     {
@@ -57,7 +56,7 @@ abstract class FunctionalTestCase extends WebTestCase
     }
 
     /**
-     * Retourne l'invité bloqué défini dans les fixtures.    
+     * Retourne l'invité bloqué défini dans les fixtures.
      */
     protected function getBlockedGuest(): User
     {
@@ -100,6 +99,7 @@ abstract class FunctionalTestCase extends WebTestCase
         $client = static::createClient();
         // Authentifie le client avec l'administrateur
         $client->loginUser($this->getAdmin());
+
         // Retourne le client déjà authentifié pour les tests fonctionnels
         return $client;
     }
@@ -114,6 +114,7 @@ abstract class FunctionalTestCase extends WebTestCase
         $client = static::createClient();
         // Authentifie le client avec l'invité actif
         $client->loginUser($this->getActiveGuest());
+
         // Retourne le client déjà authentifié pour les tests fonctionnels
         return $client;
     }

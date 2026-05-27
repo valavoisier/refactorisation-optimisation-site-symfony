@@ -26,7 +26,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     /**
      * Met à jour (rehash) le mot de passe d'un utilisateur si nécessaire.
-     * 
+     *
      * Cette méthode est appelée automatiquement par Symfony lorsque
      * l’algorithme de hachage évolue. Elle persiste simplement le
      * nouveau hash en base.
@@ -39,22 +39,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
-        $user->setPassword($newHashedPassword);// Met à jour le mot de passe de l'utilisateur
-        $this->getEntityManager()->persist($user);// Marque l'entité comme devant être sauvegardée
-        $this->getEntityManager()->flush();// Exécute la requête de mise à jour dans la base de données
+        $user->setPassword($newHashedPassword); // Met à jour le mot de passe de l'utilisateur
+        $this->getEntityManager()->persist($user); // Marque l'entité comme devant être sauvegardée
+        $this->getEntityManager()->flush(); // Exécute la requête de mise à jour dans la base de données
     }
 
     /**
-     * Retourne l'utilisateur admin (ROLE_ADMIN)
+     * Retourne l'utilisateur admin (ROLE_ADMIN).
      *
      * Le champ "roles" étant stocké en JSON dans PostgreSQL, le filtrage
      * nécessite un cast ::text, impossible en DQL. Une requête SQL native
      * est donc utilisée pour vérifier la présence du rôle.
-     * 
-     * @return User|null L'utilisateur admin trouvé ou null s'il n'existe pas 
+     *
+     * @return User|null L'utilisateur admin trouvé ou null s'il n'existe pas
      */
     public function findAdmin(): ?User
-    {       
+    {
         // Mapping Doctrine pour hydrater les résultats SQL en objets User
         // chaque ligne SQL correspond à un User alias u
         $rsm = new \Doctrine\ORM\Query\ResultSetMappingBuilder($this->getEntityManager());
@@ -65,7 +65,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
          * - FROM "user" u : table user, alias u
          * - WHERE u.roles::text LIKE :role : cast JSON → texte pour chercher ROLE_ADMIN
          * - LIMIT 1 : renvoie un seul utilisateur
-         * - Résultat hydraté en entité User via ResultSetMapping
+         * - Résultat hydraté en entité User via ResultSetMapping.
          */
         $query = $this->getEntityManager()->createNativeQuery(
             'SELECT u.* FROM "user" u WHERE u.roles::text LIKE :role LIMIT 1',
@@ -89,7 +89,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * en PHP via getRoles(), opération légère et sans impact notable.
      *
      * @return User[]
-     */  
+     */
     public function findGuests(): array
     {
         /**
@@ -108,17 +108,17 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
 
         // Filtre en PHP : exclut les utilisateurs possédant ROLE_ADMIN
-        return array_values(array_filter($users, static fn(User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
+        return array_values(array_filter($users, static fn (User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
     }
 
     /**
      * Retourne les invités actifs (non bloqués) avec leurs médias chargés (page front/guests.html.twig).
      *
-      * LEFT JOIN FETCH charge utilisateurs et médias en une seule requête,
+     * LEFT JOIN FETCH charge utilisateurs et médias en une seule requête,
      * évitant le N+1. Le filtre "blocked" est appliqué en DQL, tandis que
      * l’exclusion des administrateurs est effectuée en PHP, ce qui reste
      * léger et n’impacte pas les performances.
-     * 
+     *
      * @return User[]
      */
     public function findActiveGuests(): array
@@ -142,31 +142,31 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
 
         // Filtre en PHP : exclut les utilisateurs possédant ROLE_ADMIN
-        return array_values(array_filter($users, static fn(User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
+        return array_values(array_filter($users, static fn (User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
     }
 
-//    /**
-//     * @return User[] Returns an array of User objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    //    /**
+    //     * @return User[] Returns an array of User objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('u')
+    //            ->andWhere('u.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('u.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
 
-//    public function findOneBySomeField($value): ?User
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    //    public function findOneBySomeField($value): ?User
+    //    {
+    //        return $this->createQueryBuilder('u')
+    //            ->andWhere('u.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 }

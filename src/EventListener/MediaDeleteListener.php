@@ -29,12 +29,13 @@ class MediaDeleteListener
     public function __construct(
         // Injection du projectDir pour construire le chemin absolu du fichier à supprimer
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
-    ) {}
+    ) {
+    }
 
     public function preRemove(Media $media): void
     {
         // Construit le chemin absolu du fichier à supprimer
-        $absolutePath = $this->projectDir . '/public/' . $media->getPath();
+        $absolutePath = $this->projectDir.'/public/'.$media->getPath();
 
         // Vérifie si le fichier existe avant de tenter de le supprimer
         if (file_exists($absolutePath)) {

@@ -30,20 +30,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class GuestController extends AbstractController
 {
     /**
-     * Route pour afficher la liste des invités
+     * Route pour afficher la liste des invités.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/guest', name: 'admin_guest_index')]
     public function index(UserRepository $userRepository): Response
     {
-        //findGuests() est une méthode personnalisée dans UserRepository 
-        //cette méthode récupère tous les utilisateurs avec le rôle ROLE_USER
+        // findGuests() est une méthode personnalisée dans UserRepository
+        // cette méthode récupère tous les utilisateurs avec le rôle ROLE_USER
         return $this->render('admin/guest/index.html.twig', [
             'guests' => $userRepository->findGuests(),
         ]);
     }
+
     /**
-     * Route pour ajouter un nouvel invité
+     * Route pour ajouter un nouvel invité.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/guest/add', name: 'admin_guest_add')]
@@ -65,20 +66,20 @@ class GuestController extends AbstractController
             $guest->setPassword(
                 $hasher->hashPassword($guest, $form->get('plainPassword')->getData())
             );
-            $guest->setRoles(['ROLE_USER']);// Attribution du rôle de base ROLE_USER à l'invité
-            $em->persist($guest);// Prépare l'invité à être enregistré en base de données
-            $em->flush();// Enregistre l'invité en base de données
+            $guest->setRoles(['ROLE_USER']); // Attribution du rôle de base ROLE_USER à l'invité
+            $em->persist($guest); // Prépare l'invité à être enregistré en base de données
+            $em->flush(); // Enregistre l'invité en base de données
 
             // Redirige vers la liste des invités après l'ajout réussi
             return $this->redirectToRoute('admin_guest_index');
         }
 
-        // Affiche le formulaire d'ajout d'invité   
+        // Affiche le formulaire d'ajout d'invité
         return $this->render('admin/guest/add.html.twig', ['form' => $form]);
     }
 
     /**
-     * Route pour bloquer ou débloquer un invité
+     * Route pour bloquer ou débloquer un invité.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/guest/toggle/{id}', name: 'admin_guest_toggle')]
@@ -94,14 +95,14 @@ class GuestController extends AbstractController
 
         // Inversion de l'état bloqué/débloqué de l'invité
         $guest->setBlocked(!$guest->isBlocked());
-        $em->flush();// Enregistre les modifications en base de données
+        $em->flush(); // Enregistre les modifications en base de données
 
         // Redirige vers la liste des invités après la mise à jour de l'état
         return $this->redirectToRoute('admin_guest_index');
     }
 
     /**
-     * Route pour supprimer un invité
+     * Route pour supprimer un invité.
      */
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete')]
@@ -116,8 +117,8 @@ class GuestController extends AbstractController
         }
 
         // Suppression de l'invité (et des données liées - cascade configurée)
-        $em->remove($guest);// Prépare l'invité à être supprimé en base de données
-        $em->flush();// Enregistre la suppression en base de données
+        $em->remove($guest); // Prépare l'invité à être supprimé en base de données
+        $em->flush(); // Enregistre la suppression en base de données
 
         // Redirige vers la liste des invités après la suppression réussie
         return $this->redirectToRoute('admin_guest_index');

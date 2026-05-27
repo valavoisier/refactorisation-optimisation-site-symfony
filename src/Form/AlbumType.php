@@ -21,7 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class AlbumType extends AbstractType
 {
     /**
-     * Construction du formulaire Album
+     * Construction du formulaire Album.
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -31,8 +31,8 @@ class AlbumType extends AbstractType
         ]);
     }
 
-     /**
-     * Configuration des options du formulaire
+    /**
+     * Configuration des options du formulaire.
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

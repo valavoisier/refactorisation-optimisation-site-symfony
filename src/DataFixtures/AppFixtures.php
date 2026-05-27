@@ -11,13 +11,15 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    public const ADMIN_EMAIL    = 'ina@zaoui.com';
+    public const ADMIN_EMAIL = 'ina@zaoui.com';
     public const ADMIN_PASSWORD = 'Admin1234!@#';
-    public const GUEST_EMAIL    = 'invite@example.com';
+    public const GUEST_EMAIL = 'invite@example.com';
     public const GUEST_PASSWORD = 'Guest1234!@#';
-    public const BLOCKED_EMAIL  = 'blocked@example.com';
+    public const BLOCKED_EMAIL = 'blocked@example.com';
 
-    public function __construct(private UserPasswordHasherInterface $hasher) {}
+    public function __construct(private UserPasswordHasherInterface $hasher)
+    {
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -40,10 +42,10 @@ class AppFixtures extends Fixture
         }
 
         // --- Médias de l'admin (portfolio) ---
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $media = new Media();
-            $media->setTitle('Photo admin ' . $i);
-            $media->setPath('uploads/admin_' . $i . '.jpg');
+            $media->setTitle('Photo admin '.$i);
+            $media->setPath('uploads/admin_'.$i.'.jpg');
             $media->setUser($admin);
             $media->setAlbum($albums[($i - 1) % count($albums)]);
             $manager->persist($media);
@@ -59,10 +61,10 @@ class AppFixtures extends Fixture
         $guest->setPassword($this->hasher->hashPassword($guest, self::GUEST_PASSWORD));
         $manager->persist($guest);
 
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 3; ++$i) {
             $media = new Media();
-            $media->setTitle('Photo invité ' . $i);
-            $media->setPath('uploads/guest_' . $i . '.jpg');
+            $media->setTitle('Photo invité '.$i);
+            $media->setPath('uploads/guest_'.$i.'.jpg');
             $media->setUser($guest);
             $manager->persist($media);
         }
@@ -77,10 +79,10 @@ class AppFixtures extends Fixture
         $blocked->setPassword($this->hasher->hashPassword($blocked, 'Blocked1234!@#'));
         $manager->persist($blocked);
 
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 2; ++$i) {
             $media = new Media();
-            $media->setTitle('Photo bloqué ' . $i);
-            $media->setPath('uploads/blocked_' . $i . '.jpg');
+            $media->setTitle('Photo bloqué '.$i);
+            $media->setPath('uploads/blocked_'.$i.'.jpg');
             $media->setUser($blocked);
             $manager->persist($media);
         }

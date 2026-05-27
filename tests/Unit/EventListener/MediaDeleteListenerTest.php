@@ -22,9 +22,9 @@ class MediaDeleteListenerTest extends TestCase
     protected function setUp(): void
     {
         // Création d'un répertoire temporaire simulant %kernel.project_dir%
-        $this->tmpDir = sys_get_temp_dir() . '/media_delete_test_' . uniqid();
+        $this->tmpDir = sys_get_temp_dir().'/media_delete_test_'.uniqid();
         // Recréation de la structure attendue par le listener pour tester suppréssion dans /public/uploads
-        mkdir($this->tmpDir . '/public/uploads', 0777, true);// 0777 pour s'assurer que les permissions sont suffisantes pour les tests
+        mkdir($this->tmpDir.'/public/uploads', 0777, true); // 0777 pour s'assurer que les permissions sont suffisantes pour les tests
     }
 
     /**
@@ -48,11 +48,11 @@ class MediaDeleteListenerTest extends TestCase
         // Chemin relatif stocké dans l'entité Media
         $path = 'uploads/photo.jpg';
         // Création d'un fichier physique simulant le média à supprimer
-        $absolutePath = $this->tmpDir . '/public/' . $path;
+        $absolutePath = $this->tmpDir.'/public/'.$path;
         // Création du fichier avec du contenu factice pour s'assurer qu'il existe
         file_put_contents($absolutePath, 'fake image content');
 
-          // Création d'un Media avec un chemin valide pointant vers le fichier créé
+        // Création d'un Media avec un chemin valide pointant vers le fichier créé
         $media = new Media();
         $media->setPath($path);
 
@@ -100,10 +100,10 @@ class MediaDeleteListenerTest extends TestCase
         }
         // Parcourt tous les éléments du dossier (fichiers + sous-dossiers).
         foreach (scandir($dir) as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;//  On ignore les entrées système . et .. pour éviter de remonter dans l'arborescence ou de supprimer le dossier lui-même prématurément
+            if ('.' === $item || '..' === $item) {
+                continue; //  On ignore les entrées système . et .. pour éviter de remonter dans l'arborescence ou de supprimer le dossier lui-même prématurément
             }
-            $path = $dir . '/' . $item;
+            $path = $dir.'/'.$item;
             // Si c'est un dossier → suppression récursive
             // Si c'est un fichier → unlink()
             is_dir($path) ? $this->removeDir($path) : unlink($path);

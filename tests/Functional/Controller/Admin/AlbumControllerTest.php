@@ -7,7 +7,7 @@ use App\Tests\Functional\FunctionalTestCase;
 
 /**
  * TESTS FONCTIONNELS — AlbumController (espace admin)
- * ===================================================
+ * ===================================================.
  *
  * Objectif :
  * ----------
@@ -116,7 +116,7 @@ class AlbumControllerTest extends FunctionalTestCase
     //  Ajout d'un nouvel album                                                               //
     // ------------------------------------------------------------------ //
 
-     /**
+    /**
      * Vérifie que la page d'ajout d'album affiche correctement le formulaire (HTTP 200).
      *
      * Raison métier :
@@ -152,7 +152,7 @@ class AlbumControllerTest extends FunctionalTestCase
 
         // Soumission du formulaire avec un nom d'album unique pour éviter les conflits.
         $form = $crawler->selectButton('Ajouter')->form([
-            'album[name]' => 'Album test ' . uniqid(),
+            'album[name]' => 'Album test '.uniqid(),
         ]);
         // Envoi du formulaire pour créer le nouvel album.
         $client->submit($form);
@@ -165,7 +165,7 @@ class AlbumControllerTest extends FunctionalTestCase
     //  Modification                                                        //
     // ------------------------------------------------------------------ //
 
-     /**
+    /**
      * Vérifie qu'un GET sur /admin/album/update/{id} affiche le formulaire pré-rempli (200).
      *
      * Raison métier :
@@ -182,7 +182,7 @@ class AlbumControllerTest extends FunctionalTestCase
         $album = $albumRepo->findOneBy([]);
 
         // Connexion de l'administrateur et accès à la page de modification de l'album.
-        $client->request('GET', '/admin/album/update/' . $album->getId());
+        $client->request('GET', '/admin/album/update/'.$album->getId());
 
         // Vérifie que la page charge correctement - succès (HTTP 200).
         $this->assertResponseIsSuccessful();
@@ -207,7 +207,7 @@ class AlbumControllerTest extends FunctionalTestCase
         $album = $albumRepo->findOneBy([]);
 
         // Connexion de l'administrateur et accès à la page de modification de cet album.
-        $crawler = $client->request('GET', '/admin/album/update/' . $album->getId());
+        $crawler = $client->request('GET', '/admin/album/update/'.$album->getId());
 
         // Soumission du formulaire de modification avec un nouveau nom d'album.
         $form = $crawler->selectButton('Modifier')->form([
@@ -246,7 +246,7 @@ class AlbumControllerTest extends FunctionalTestCase
         $albumId = $album->getId();
 
         // Connexion de l'administrateur et tentative de suppression de cet album.
-        $client->request('GET', '/admin/album/delete/' . $albumId);
+        $client->request('GET', '/admin/album/delete/'.$albumId);
 
         // Vérifie que la suppression redirige vers la liste des albums.
         $this->assertResponseRedirects('/admin/album');

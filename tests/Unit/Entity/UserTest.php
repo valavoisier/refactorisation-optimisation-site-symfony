@@ -15,7 +15,7 @@ class UserTest extends TestCase
         $this->user = new User();
     }
 
-     /**
+    /**
      * Vérifie que la valeur par défaut du champ "blocked" est false.
      *
      * Raison métier :
@@ -34,7 +34,7 @@ class UserTest extends TestCase
      * - Tous les utilisateurs doivent avoir au moins le rôle "ROLE_USER".
      * - Ce rôle garantit un accès minimal aux fonctionnalités du site.
      * - La méthode getRoles() ajoute automatiquement ce rôle.
-     */ 
+     */
     public function testRolesAlwaysContainRoleUser(): void
     {
         $this->user->setRoles([]);
@@ -73,5 +73,4 @@ class UserTest extends TestCase
         // Le mot de passe ne doit pas être effacé
         $this->assertSame('secret', $this->user->getPassword());
     }
-
 }

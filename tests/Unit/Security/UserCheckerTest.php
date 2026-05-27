@@ -21,7 +21,7 @@ class UserCheckerTest extends TestCase
     /**
      * Un utilisateur bloqué ne doit pas pouvoir se connecter.
      * - Vérifie que checkPreAuth() bloque un utilisateur marqué comme "blocked"
-     *   via l'exception CustomUserMessageAccountStatusException
+     *   via l'exception CustomUserMessageAccountStatusException.
      *
      * Raison métier :
      * - C'est la protection centrale contre les comptes révoqués.
@@ -56,7 +56,7 @@ class UserCheckerTest extends TestCase
 
     /**
      * Vérifie que les objets UserInterface non issus de l'entité User
-     *   sont ignorés silencieusement par checkPreAuth (guard clause)
+     *   sont ignorés silencieusement par checkPreAuth (guard clause).
      *
      * Raison métier :
      * - Guard clause de sécurité : évite une erreur si un autre UserInterface est utilisé.
