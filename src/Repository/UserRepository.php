@@ -16,7 +16,6 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  * rehash automatique des mots de passe (PasswordUpgraderInterface).
  *
  * @extends ServiceEntityRepository<User>
- * @implements PasswordUpgraderInterface<User>
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
