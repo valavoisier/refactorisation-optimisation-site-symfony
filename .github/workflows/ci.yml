@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  ci:
+    name: Tests & Analyse statique
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ina_zaoui_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: test
+      APP_SECRET: ci-secret-for-tests
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/ina_zaoui?serverVersion=16&charset=utf8"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_pgsql, intl
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse
+
+      - name: Run migrations
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --no-interaction --purge-with-truncate
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
