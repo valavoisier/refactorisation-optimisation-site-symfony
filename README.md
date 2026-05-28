@@ -29,6 +29,7 @@ Vous pouvez vérifier les extensions activées avec :
 
 ```bash
 php -m
+```
 
 ---
 
@@ -66,12 +67,16 @@ DATABASE_URL="postgresql://utilisateur:motdepasse@127.0.0.1:5432/ina_zaoui?serve
 > php bin/console secret:generate-keys
 > ```
 
-### 4. Créer la base de données et exécuter les migrations
+### 4. Créer la base de données et initialiser le schéma
 
 ```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:create
+php bin/console doctrine:migrations:sync-metadata-storage
+php bin/console doctrine:migrations:version --add --all --no-interaction
 ```
+
+> La migration existante est incrémentale (elle modifie un schéma préexistant). Sur une installation fraîche, `doctrine:schema:create` génère toutes les tables depuis les entités, puis les trois commandes suivantes marquent la migration comme déjà appliquée sans l'exécuter.
 
 ### 5. Charger les données de démonstration (optionnel)
 
@@ -152,14 +157,18 @@ Accès via `/login`.
 Créer un fichier `.env.test.local` avec les identifiants de la base de données de test :
 
 ```dotenv
-DATABASE_URL="postgresql://utilisateur:motdepasse@127.0.0.1:5432/ina_zaoui_test?serverVersion=16&charset=utf8"
+DATABASE_URL="postgresql://utilisateur:motdepasse@127.0.0.1:5432/ina_zaoui?serverVersion=16&charset=utf8"
 ```
+
+> Doctrine ajoute automatiquement le suffixe `_test` en environnement de test (`dbname_suffix` dans `doctrine.yaml`). La base réellement utilisée sera `ina_zaoui_test`.
 
 ### Préparer la base de données de test
 
 ```bash
 php bin/console doctrine:database:create --env=test
-php bin/console doctrine:migrations:migrate --env=test
+php bin/console doctrine:schema:create --env=test
+php bin/console doctrine:migrations:sync-metadata-storage --env=test
+php bin/console doctrine:migrations:version --add --all --no-interaction --env=test
 php bin/console doctrine:fixtures:load --env=test
 ```
 ! L’environnement de test doit être isolé afin que les tests n’affectent jamais la base de données réelle.
@@ -332,7 +341,9 @@ La base de données se reconstruit entièrement via les migrations et les fixtur
 
 ```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:create
+php bin/console doctrine:migrations:sync-metadata-storage
+php bin/console doctrine:migrations:version --add --all --no-interaction
 php bin/console doctrine:fixtures:load
 ```
 
