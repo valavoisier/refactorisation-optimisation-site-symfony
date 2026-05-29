@@ -23,7 +23,7 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // --- Admin ---
+        // --- Admin: création de l'utilisateur administrateur---
         $admin = new User();
         $admin->setName('Ina Zaoui');
         $admin->setEmail(self::ADMIN_EMAIL);
@@ -32,7 +32,7 @@ class AppFixtures extends Fixture
         $admin->setPassword($this->hasher->hashPassword($admin, self::ADMIN_PASSWORD));
         $manager->persist($admin);
 
-        // --- Albums ---
+        // --- Albums création de 5 albums---
         $albums = [];
         foreach (['Album 1', 'Album 2', 'Album 3', 'Album 4', 'Album 5'] as $name) {
             $album = new Album();
@@ -41,7 +41,7 @@ class AppFixtures extends Fixture
             $albums[] = $album;
         }
 
-        // --- Médias de l'admin (portfolio) ---
+        // --- Médias de l'admin: création de 5 medias associés au portfolio ---
         for ($i = 1; $i <= 5; ++$i) {
             $media = new Media();
             $media->setTitle('Photo admin '.$i);
@@ -51,7 +51,7 @@ class AppFixtures extends Fixture
             $manager->persist($media);
         }
 
-        // --- Invité actif ---
+        // --- Invité actif : création de l'utilisateur +3 médias associés---
         $guest = new User();
         $guest->setName('Invité Actif');
         $guest->setEmail(self::GUEST_EMAIL);
@@ -69,7 +69,7 @@ class AppFixtures extends Fixture
             $manager->persist($media);
         }
 
-        // --- Invité bloqué ---
+        // --- Invité bloqué : création de l'utilisateur +2 médias associés ---
         $blocked = new User();
         $blocked->setName('Invité Bloqué');
         $blocked->setEmail(self::BLOCKED_EMAIL);
