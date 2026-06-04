@@ -33,7 +33,7 @@ class Media
 
     #[Assert\File(
         maxSize: '2M',
-        maxSizeMessage: 'Le fichier est trop volumineux ({{ size }} {{ suffix }}). La taille maximum autorisée est {{ limit }} {{ suffix }}.',
+        maxSizeMessage: 'Le fichier est trop volumineux ({{ size }} Mo). La taille maximum autorisée est {{ limit }} Mo.',
         mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
         mimeTypesMessage: 'Le fichier doit être une image (JPEG, PNG ou WebP).',
     )]
