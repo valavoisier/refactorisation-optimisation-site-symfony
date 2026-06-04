@@ -359,3 +359,39 @@ php bin/console doctrine:fixtures:load
 ```
 
 > **Images :** les images issues de l'ancienne installation (dossier `public/uploads/` du précédent backup) sont toujours compatibles. Il suffit de les recopier dans `public/uploads/` après l'installation.
+
+---
+
+## Optimisation des images — conversion JPEG → WebP
+
+Le dépôt d'origine contenait plus de 5 000 images pour environ 1 Go. Afin de réduire le poids du dossier `public/uploads/`, une commande Symfony permet de convertir en lot tous les fichiers JPEG/JPG en WebP.
+
+### Commande
+
+```bash
+php bin/console app:jpeg-to-webp
+```
+
+Symfony fournit un système de commandes accessible via bin/console.
+Une commande est une classe PHP annotée avec #[AsCommand] et automatiquement enregistrée par le framework.
+Elle peut être exécutée depuis le terminal et permet d’automatiser des tâches comme le traitement de fichiers, la maintenance, l’import/export ou la manipulation de données.
+La logique de la commande est définie dans la méthode execute() (ou __invoke() dans les versions récentes).
+Symfony met à disposition des outils pour gérer les arguments, options, services injectés, ainsi qu’un système de sortie formatée via SymfonyStyle.
+Documentation complète : https://symfony.com/doc/current/console.html
+
+### Ce que fait la commande
+
+- Parcourt `public/uploads/` et détecte tous les fichiers `.jpg` / `.jpeg` (insensible à la casse).
+- Convertit chaque fichier en `.webp` (qualité 80) via l'extension GD de PHP.
+- Met à jour le champ `path` en base de données pour chaque `Media` concerné.
+- Supprime le fichier JPEG d'origine après conversion réussie.
+- Laisse intacts les fichiers `.png` et `.webp` déjà présents.
+
+
+### Prérequis
+
+L'extension PHP **GD** doit être activée (vérifier avec `php -m | grep gd`).
+
+### Résultat attendu
+
+Seuls les fichiers `.webp` subsistent dans `public/uploads/` ; les enregistrements en base pointent tous vers des chemins `.webp`.
