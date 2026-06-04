@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Commande Symfony permettant de convertir automatiquement toutes les images
  * JPEG/JPG présentes dans le dossier public/uploads en format WebP.
@@ -37,7 +38,7 @@ class JpegToWebpCommand
     public function __construct(
         // Injecte le chemin du projet pour accéder à public/uploads
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
-        // Injecte le repository pour récupérer les entités Media correspondant aux fichiers convertis      
+        // Injecte le repository pour récupérer les entités Media correspondant aux fichiers convertis
         private readonly MediaRepository $mediaRepository,
         // Injecte l'EntityManager pour persister les changements dans la base de données
         private readonly EntityManagerInterface $em,
