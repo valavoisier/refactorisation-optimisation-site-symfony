@@ -109,13 +109,13 @@ php -S localhost:8000 -t public/
 ## connexion
 | Role | Email | Mot de passe |
 |----------|-------------|---------|
-| Administrateur (Ina) | ina@zaoui.com | Admin1234!@# |
+| Administrateur (Ina) | ina@zaoui.com | password |
 | Invité 0 | invite+0@example.com | password0! |
 | Invité 1 | invite+1@example.com | password1! |
 | Invité N | invite+N@example.com | password |
 
 
-Les motes de passe initialement créé sont valables même s'ils ne respectent pas les règles de validation du formulaire. Cependant, lors de la modification de la création d'un invité via le Back Office ou modification, les nouveaux mots de passe doivent respecter les contraintes de robustesse (12 caractères minimum, majuscules, minuscules, chiffres et caractères spéciaux).
+Les mots de passe initialement créés sont valables même s'ils ne respectent pas les règles de validation du formulaire. Cependant, lors de la modification de la création d'un invité via le Back Office, les nouveaux mots de passe doivent respecter les contraintes de robustesse (12 caractères minimum, majuscules, minuscules, chiffres et caractères spéciaux).
 
 ---
 
@@ -390,7 +390,14 @@ Documentation complète : https://symfony.com/doc/current/console.html
 
 ### Prérequis
 
-L'extension PHP **GD** doit être activée (vérifier avec `php -m | grep gd`).
+L’extension PHP **GD** doit être activée pour permettre la conversion des images (JPEG → WebP).
+
+Pour vérifier que GD est bien chargée :
+
+```bash
+php -r "var_dump(extension_loaded('gd'));"
+```
+résultat attendu bool(true)
 
 ### Résultat attendu
 
