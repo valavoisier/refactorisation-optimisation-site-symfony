@@ -38,12 +38,12 @@ class MediaController extends AbstractController
 
         // Les admins voient tous les médias, les invités voient seulement les leurs
         $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
-        assert($user === null || $user instanceof User);
+        assert(null === $user || $user instanceof User);
 
-        // Récupération des médias avec utilisateur et album chargés dans la même requête                
+        // Récupération des médias avec utilisateur et album chargés dans la même requête
         $medias = $mediaRepository->findPaginatedWithRelations($user, $page);
         // Comptage total des médias pour la pagination (filtré par utilisateur si invité)
-        $total  = $mediaRepository->count($user !== null ? ['user' => $user] : []);
+        $total = $mediaRepository->count(null !== $user ? ['user' => $user] : []);
 
         // Affichage de la page d'administration des médias avec les données récupérées
         return $this->render('admin/media/index.html.twig', [
@@ -106,7 +106,7 @@ class MediaController extends AbstractController
         if (!$media) {
             throw $this->createNotFoundException('Média introuvable.');
         }
-        // Seuls l'admin peut supprimer n'importe quel média, 
+        // Seuls l'admin peut supprimer n'importe quel média,
         // les autres utilisateurs ne peuvent supprimer que leurs propres médias
         if (!$this->isGranted('ROLE_ADMIN') && $media->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce média.');

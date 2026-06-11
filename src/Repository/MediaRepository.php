@@ -52,11 +52,11 @@ class MediaRepository extends ServiceEntityRepository
      * - WHERE m.user = :user : filtre les médias d’un invité connecté.
      * - ORDER BY u.id, m.id : tri stable par utilisateur puis par média.
      * - LIMIT/OFFSET : pagination appliquée côté SQL.
-     * 
-     * Résultat : 
+     *
+     * Résultat :
      * Une page de médias avec leurs relations chargées en une requête,
      * Pagination propre par invité, et affichage complet en admin.
-     * 
+     *
      * @return Media[]
      */
     public function findPaginatedWithRelations(?User $user, int $page, int $perPage = 25): array
@@ -69,7 +69,7 @@ class MediaRepository extends ServiceEntityRepository
             ->setFirstResult($perPage * ($page - 1))
             ->setMaxResults($perPage);
 
-        if ($user !== null) {
+        if (null !== $user) {
             $qb->where('m.user = :user')
                 ->setParameter('user', $user);
         }

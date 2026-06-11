@@ -110,7 +110,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->addSelect('m')
             ->orderBy('u.id', 'ASC');
 
-        if ($admin !== null) {
+        if (null !== $admin) {
             $qb->where('u != :admin')
                 ->setParameter('admin', $admin);
         }
@@ -139,7 +139,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('blocked', false)
             ->orderBy('u.id', 'ASC');
 
-        if ($admin !== null) {
+        if (null !== $admin) {
             $qb->andWhere('u != :admin')
                 ->setParameter('admin', $admin);
         }
