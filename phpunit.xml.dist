@@ -19,6 +19,9 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <file>src/Command/JpegToWebpCommand.php</file>
+        </exclude>
     </source>
 
     <coverage>
