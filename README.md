@@ -115,7 +115,7 @@ php -S localhost:8000 -t public/
 | Invité N | invite+N@example.com | password |
 
 
-Les motes de passe initialement créé sont valables même s'ils ne respectent pas les règles de validation du formulaire. Cependant, lors de la modification de la création d'un invité via le Back Office ou modification, les nouveaux mots de passe doivent respecter les contraintes de robustesse (12 caractères minimum, majuscules, minuscules, chiffres et caractères spéciaux).
+Les mots de passe initialement créés sont valables même s'ils ne respectent pas les règles de validation du formulaire. Cependant, lors de la modification de la création d'un invité via le Back Office ou modification, les nouveaux mots de passe doivent respecter les contraintes de robustesse (12 caractères minimum, majuscules, minuscules, chiffres et caractères spéciaux).
 
 ---
 
@@ -158,7 +158,7 @@ Accès via `/login`.
 | `/admin/guest` | `ROLE_ADMIN` | Gérer les invités |
 
 > **Hiérarchie des rôles :** `ROLE_ADMIN` (Ina) hérite de `ROLE_USER` (invité connecté).
-
+> Les administrateurs (`ROLE_ADMIN`) voient tous les médias, tandis que les invités (`ROLE_USER`) ne voient que les leurs.
 ---
 
 ## Tests
@@ -222,8 +222,8 @@ Il s’exécute automatiquement à chaque **push** et **Pull Request**.
 ```
 User ──< Media    (OneToMany, cascade remove)
 Album ──< Media   (OneToMany, cascade remove)
-Media >── User    (ManyToOne, fetch EAGER)
-Media >── Album   (ManyToOne, fetch EAGER)
+Media >── User    (ManyToOne)
+Media >── Album   (ManyToOne)
 ```
 
 La suppression d'un `User` ou d'un `Album` entraîne la suppression en cascade de tous les `Media` associés.
@@ -315,19 +315,40 @@ La page publique `/guests` charge les invités actifs **et leurs médias** en un
 
 ```php
 // UserRepository::findActiveGuests()
-$this->createQueryBuilder('u')
+$admin = $this->findAdmin();
+
+$qb = $this->createQueryBuilder('u')
     ->leftJoin('u.medias', 'm')
     ->addSelect('m')                        // hydrate les médias dans la même requête
     ->where('u.blocked = :blocked')
     ->setParameter('blocked', false)        // filtre les invités actifs
-    ->orderBy('u.id', 'ASC')
-    ->getQuery()
-    ->getResult();
+    ->orderBy('u.id', 'ASC');
+
+if ($admin !== null) {
+    $qb->andWhere('u != :admin')
+        ->setParameter('admin', $admin);    // exclut Ina en SQL (WHERE u.id != ?)
+}
+
+return $qb->getQuery()->getResult();
 ```
 
-Sans ce `addSelect('m')`, Doctrine émettrait une requête SQL supplémentaire par invité pour charger ses médias (problème N+1), ce qui rendrait la page de plus en plus lente à mesure que le nombre d'invités augmente.
+Sans le `addSelect('m')`(hydrate les médias dans la même requête), Doctrine chargerait les médias de chaque invité dans des requêtes séparées (N+1). L’exclusion d’Ina empêche également Doctrine de charger ses médias et albums, ce qui évite d’hydrater des données inutiles.
 
-La même approche est appliquée dans `findGuests()` (liste d'administration), qui charge tous les invités (actifs et bloqués) avec leurs médias en une seule requête.
+Cette logique est aussi utilisée dans `findGuests()` (liste d'administration), qui charge tous les invités (actifs et bloqués) avec leurs médias en une seule requête, sans inclure Ina.
+
+### Chargement et pagination des médias (Back Office)
+
+La liste des médias dans l’administration utilise une méthode dédiée :
+
+```php
+findPaginatedWithRelations(User $user|null, int $page)
+```
+Cette méthode :
+charge Media, User et Album dans une seule requête SQL ;
+applique la pagination via LIMIT et OFFSET ;
+filtre les médias lorsqu’un invité est connecté (un admin voit tout) ;
+évite toute requête supplémentaire lors du rendu Twig.
+Elle garantit une pagination correcte pour chaque utilisateur et un affichage performant dans le Back Office.
 
 ### Migration Symfony 5.4 → 7.4
 

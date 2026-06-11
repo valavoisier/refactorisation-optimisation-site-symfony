@@ -17,8 +17,8 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * Rôle :
  * - Permet à l'administrateur de consulter, ajouter et supprimer les médias.
- * - Les utilisateurs non-admin ne voient que leurs propres médias.
- * - Toutes les actions sont strictement réservées à l'espace admin.
+ * - Les administrateurs voient tous les médias.
+ * - Les invités connectés ne voient que leurs propres médias.
  *
  * Actions disponibles :
  * - index()  : liste paginée des médias.
@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class MediaController extends AbstractController
 {
     /**
-     * Route pour afficher la liste des médias.
+     * Route pour afficher la liste paginéedes médias.
      */
     #[Route('/admin/media', name: 'admin_media_index')]
     public function index(Request $request, MediaRepository $mediaRepository): Response
@@ -36,24 +36,14 @@ class MediaController extends AbstractController
         // Récupération du numéro de page depuis la requête (par défaut 1)
         $page = $request->query->getInt('page', 1);
 
-        // Critères de filtrage : les admins voient tous les médias, les autres voient seulement les leurs
-        $criteria = [];
+        // Les admins voient tous les médias, les invités voient seulement les leurs
+        $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
+        assert($user === null || $user instanceof User);
 
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $criteria['user'] = $this->getUser();
-        }
-        // Replace le média uploadé en fin de liste de chaque utilisateur concerné
-        // Récupération des médias triés par utilisateur puis par ID / remplace ['id' => 'ASC'],
-        // Pagination : 25 médias par page
-        $medias = $mediaRepository->findBy(
-            $criteria,
-            ['user' => 'ASC', 'id' => 'ASC'],
-            25,
-            25 * ($page - 1)
-        );
-        // Récupération du nombre total de médias pour la pagination
-        // Correction bug pagination invité provoqué par spécifique$total = $mediaRepository->count([]);
-        $total = $mediaRepository->count($criteria);
+        // Récupération des médias avec utilisateur et album chargés dans la même requête                
+        $medias = $mediaRepository->findPaginatedWithRelations($user, $page);
+        // Comptage total des médias pour la pagination (filtré par utilisateur si invité)
+        $total  = $mediaRepository->count($user !== null ? ['user' => $user] : []);
 
         // Affichage de la page d'administration des médias avec les données récupérées
         return $this->render('admin/media/index.html.twig', [
@@ -79,6 +69,7 @@ class MediaController extends AbstractController
         // Vérifie si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             // Si l'utilisateur n'est pas admin, on associe le média à l'utilisateur connecté
+            // Un invité ne peut ajouter que ses propres médias
             if (!$this->isGranted('ROLE_ADMIN')) {
                 $user = $this->getUser();
                 assert($user instanceof User);
@@ -115,7 +106,8 @@ class MediaController extends AbstractController
         if (!$media) {
             throw $this->createNotFoundException('Média introuvable.');
         }
-        // Seuls l'admin peut supprimer n'importe quel média, les autres utilisateurs ne peuvent supprimer que leurs propres médias
+        // Seuls l'admin peut supprimer n'importe quel média, 
+        // les autres utilisateurs ne peuvent supprimer que leurs propres médias
         if (!$this->isGranted('ROLE_ADMIN') && $media->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce média.');
         }

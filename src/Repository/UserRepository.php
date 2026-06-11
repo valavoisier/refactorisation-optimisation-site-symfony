@@ -85,64 +85,66 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * les collections medias à l’hydratation, supprimant ainsi le problème N+1.
      *
      * Le champ "roles" étant stocké en JSON PostgreSQL, le filtrage des
-     * administrateurs ne peut pas être effectué en DQL. Il est donc réalisé
-     * en PHP via getRoles(), opération légère et sans impact notable.
+     * administrateurs ne peut pas être effectué en DQL. On récupère d'abord
+     * l'entité admin via findAdmin(), puis on l'exclut directement en DQL
+     * avec `u != :admin` (traduit en WHERE u.id != ? par Doctrine).
+     * Ina n'est donc jamais chargée, ni ses médias.
      *
      * @return User[]
      */
     public function findGuests(): array
     {
+        $admin = $this->findAdmin();
+
         /**
          * Requête DQL :
-         * - FROM User u : sélectionne les utilisateurs
-         * - LEFT JOIN u.medias m : joint les médias même si absents
-         * - addSelect(m) : hydrate les médias dans la même requête
-         * - ORDER BY u.id ASC : tri par id
+         * - FROM User u : sélectionne tous les utilisateurs
+         * - LEFT JOIN u.medias m : joint les médias de chaque utilisateur (même si aucun média n'existe, l'utilisateur est quand même récupéré)
+         * - addSelect(m) : hydrate les médias dans la même requête (évite le N+1)
+         * - WHERE u != :admin : exclut l'administrateur (Ina) en SQL (WHERE u.id != ?) — ses médias et albums ne sont jamais chargés
+         * - ORDER BY u.id ASC : tri par id croissant des utilisateurs
          * - Résultat : utilisateurs + médias chargés en une seule requête
          */
-        $users = $this->createQueryBuilder('u')
+        $qb = $this->createQueryBuilder('u')
             ->leftJoin('u.medias', 'm')
             ->addSelect('m')
-            ->orderBy('u.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('u.id', 'ASC');
 
-        // Filtre en PHP : exclut les utilisateurs possédant ROLE_ADMIN
-        return array_values(array_filter($users, static fn (User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
+        if ($admin !== null) {
+            $qb->where('u != :admin')
+                ->setParameter('admin', $admin);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
      * Retourne les invités actifs (non bloqués) avec leurs médias chargés (page front/guests.html.twig).
      *
      * LEFT JOIN FETCH charge utilisateurs et médias en une seule requête,
-     * évitant le N+1. Le filtre "blocked" est appliqué en DQL, tandis que
-     * l’exclusion des administrateurs est effectuée en PHP, ce qui reste
-     * léger et n’impacte pas les performances.
+     * évitant le N+1. Ina est exclue directement en DQL via `u != :admin`
+     * (traduit en WHERE u.id != ? par Doctrine) : ni son enregistrement User,
+     * ni ses médias ne sont chargés par le LEFT JOIN.
      *
      * @return User[]
      */
     public function findActiveGuests(): array
     {
-        /**
-         * Requête DQL :
-         * - FROM User u : sélectionne les utilisateurs
-         * - LEFT JOIN u.medias m : joint les médias
-         * - addSelect(m) : hydrate les médias immédiatement
-         * - WHERE u.blocked = false : filtre les utilisateurs actifs
-         * - ORDER BY u.id ASC : tri par id
-         * - Résultat : utilisateurs actifs (non bloqués) + médias chargés en une seule requête
-         */
-        $users = $this->createQueryBuilder('u')
+        $admin = $this->findAdmin();
+
+        $qb = $this->createQueryBuilder('u')
             ->leftJoin('u.medias', 'm')
             ->addSelect('m')
             ->where('u.blocked = :blocked')
             ->setParameter('blocked', false)
-            ->orderBy('u.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('u.id', 'ASC');
 
-        // Filtre en PHP : exclut les utilisateurs possédant ROLE_ADMIN
-        return array_values(array_filter($users, static fn (User $u) => !in_array('ROLE_ADMIN', $u->getRoles(), true)));
+        if ($admin !== null) {
+            $qb->andWhere('u != :admin')
+                ->setParameter('admin', $admin);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**
