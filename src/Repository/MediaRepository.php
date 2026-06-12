@@ -52,7 +52,7 @@ class MediaRepository extends ServiceEntityRepository
      * - WHERE m.user = :user : filtre les médias d’un invité connecté.
      * - ORDER BY u.id, m.id : tri stable par utilisateur puis par média.
      * - LIMIT/OFFSET : pagination appliquée côté SQL.
-     *
+     *   LIMIT : nombre d'éléments par page (setMaxResults()), OFFSET : décalage (setFirstResult())
      * Résultat :
      * Une page de médias avec leurs relations chargées en une requête,
      * Pagination propre par invité, et affichage complet en admin.

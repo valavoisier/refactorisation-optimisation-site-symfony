@@ -83,6 +83,7 @@ class JpegToWebpCommand
             $webpPath = $uploadsDir.'/'.$webpFilename;
 
             // Tentative de chargement du JPEG via GD
+            // @ supprime les warnings en cas de fichier corrompu ou non lisible, on gère l'erreur avec un message personnalisé
             $image = @imagecreatefromjpeg($jpegPath);
             if (false === $image) {
                 $io->warning("Impossible de lire : $filename");

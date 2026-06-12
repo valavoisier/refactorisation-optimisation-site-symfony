@@ -21,6 +21,7 @@ Créer une issue GitHub en précisant :
 - **Comportement attendu** : ce qui devrait se passer
 - **Étapes pour reproduire** : liste numérotée des actions
 - **Environnement** : version de PHP, Symfony, navigateur le cas échéant
+- **Logs ou captures d’écran** si pertinent
 
 Vérifier au préalable qu'aucune issue existante ne couvre déjà le problème.
 
@@ -30,7 +31,7 @@ Vérifier au préalable qu'aucune issue existante ne couvre déjà le problème.
 
 1. Ouvrir une issue avec le label `enhancement` **avant** d'écrire du code.
 2. Décrire le besoin fonctionnel, le cas d'usage et la valeur ajoutée.
-3. Documenter la décision prise (choix retenu et alternatives écartées) dans la description de la Pull Request pour faciliter la compréhension future.
+3. Documenter la décision prise (choix retenu, alternatives écartées et impact sur le code existant ) dans la description de la Pull Request pour faciliter la compréhension future.
 
 ---
 
@@ -48,6 +49,7 @@ Vérifier au préalable qu'aucune issue existante ne couvre déjà le problème.
 
 - Utiliser le **kebab-case** (minuscules, tirets)
 - Toujours partir d'une branche `main` à jour
+- Une branche = une seule fonctionnalité ou correction
 
 ### Commits
 
@@ -78,7 +80,38 @@ docs(readme): update installation instructions
 
 - Message en **anglais** de préférence (ou en français), à l'impératif, sans majuscule initiale ni point final
 - Limiter la première ligne à 72 caractères
-- Référencer l'issue si applicable : `fix(auth): prevent blocked user login (closes #12)`
+- Référencer l'issue si applicable, exemple: `fix(auth): prevent blocked user login (closes #12)`
+
+---
+
+## Conventions de nommage — PHP / Symfony / Twig / Base de données
+
+### PHP / Symfony
+
+- **Classes :** PascalCase  
+  `GuestController`, `UserRepository`
+- **Méthodes :** camelCase  
+  `findActiveGuests()`, `checkPreAuth()`
+- **Variables :** camelCase  
+  `$guest`, `$userRepository`
+- **Constantes :** UPPER_SNAKE_CASE  
+  `DEFAULT_LIMIT`
+- **Routes :** snake_case avec préfixe  
+  `admin_guest_index`, `home`
+
+### Twig
+
+- **Fichiers :** snake_case  
+  `guest_medias.html.twig`
+- **Variables :** camelCase  
+  `{{ guestMedias }}`, `{{ media.path }}`, `{{ medias }}`
+
+### Base de données
+
+- **Tables :** snake_case  
+  `doctrine_migration_versions`
+- **Colonnes :** snake_case  
+  `is_blocked`, `user_id`
 
 ---
 
@@ -99,7 +132,8 @@ main
    - La référence à l'issue associée (`Closes #XX`)
 6. Vérifier que le pipeline CI passe au vert avant de merger
    La CI utilisée est GitHub Actions. Le workflow est défini dans 
-   `.github/workflows/ci.yml` et s’exécute automatiquement à chaque Pull Request.
+   `.github/workflows/ci.yml` et s’exécute automatiquement à chaque Pull Request
+7. Le merge se fait en **Squash & Merge** pour garder un historique propre
 
 
 ---
@@ -113,6 +147,7 @@ Avant tout merge dans `main`, s'assurer que :
 - [ ] L'analyse statique ne remonte pas d'erreur : `vendor/bin/phpstan analyse src/`
 - [ ] Le pipeline CI est au vert
 - [ ] Aucun secret ou donnée sensible n'est committé
+- [ ] Documentation mise à jour si nécessaire 
 
 ---
 
@@ -120,7 +155,7 @@ Avant tout merge dans `main`, s'assurer que :
 
 ### Tests
 
-- Tout nouveau comportement doit être couvert par un test.
+- Toute nouvelle fonctionnalité doit être couverte par un test.
 - Les tests unitaires se trouvent dans `tests/Unit/`, les tests fonctionnels dans `tests/Functional/`.
 - Utiliser les fixtures (`AppFixtures`) comme base de données de test — ne pas créer de données en dur dans les tests.
 
@@ -145,12 +180,12 @@ Aucune erreur ne doit être introduite. Le niveau de rigueur est défini dans `p
 ### Sécurité
 
 - Ne jamais committer de secrets ou mots de passe — utiliser `.env.local`, ignoré par git.
-- Valider toutes les entrées utilisateur via le composant Symfony Validator.
+- Valider toutes les entrées utilisateur via le composant Symfony Validator (attributs #[IsGranted]).
 - Respecter les contrôles d'accès définis dans `security.yaml` et les contrôleurs.
 
 ### Style de code
 
-Respecter les standards **PSR-12**. Si PHP-CS-Fixer est disponible :
+Respecter les standards **PSR-12**. Utiliser PHP-CS-Fixer pour formater le code avant de committer :
 
 ```bash
 vendor/bin/php-cs-fixer fix src/
