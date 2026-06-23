@@ -37,9 +37,9 @@ class MediaController extends AbstractController
         $page = $request->query->getInt('page', 1);
 
         // Les admins voient tous les médias, les invités voient seulement les leurs
-        //si admin, $user = null (aucun filtrage), sinon on récupère l'utilisateur connecté getUser()
+        // si admin, $user = null (aucun filtrage), sinon on récupère l'utilisateur connecté getUser()
         $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
-        // Vérification que l'utilisateur est bien connecté et de type User 
+        // Vérification que l'utilisateur est bien connecté et de type User
         assert(null === $user || $user instanceof User);
 
         // Récupération des médias avec utilisateur et album chargés dans la même requête
