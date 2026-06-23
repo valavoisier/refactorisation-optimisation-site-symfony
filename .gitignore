@@ -16,8 +16,6 @@
 
 coverage/
 .phpunit.cache/
-projet-15.txt
-consignes-documentations.txt
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php

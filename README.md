@@ -312,11 +312,16 @@ templates/
 │   ├── guest.html.twig     ← Galerie d'un invité
 │   ├── portfolio.html.twig
 │   └── about.html.twig
-└── admin/
-    ├── security/           ← login.html.twig
-    ├── album/              ← index, add, edit
-    ├── media/              ← index, add
-    └── guest/              ← index, add
+├── admin/
+│    ├── login.html.twig
+│    ├── album/              ← index.html.twig, add.html.twig, update.html.twig
+│    ├── media/              ← index.html.twig, add.html.twig
+│    └── guest/              ← index.html.twig, add.html.twig
+│
+└── bundles/
+    └── TwigBundle/
+        └── Exception/
+            └── error404.html.twig   ← Page d’erreur 404 personnalisée
 ```
 
 Chaque page hérite d'un layout dédié (`front.html.twig` ou `admin.html.twig`) qui hérite lui-même de `base.html.twig`. Cela permet d'avoir deux chartes graphiques distinctes (site public vs espace admin) sans dupliquer la structure HTML de base.
