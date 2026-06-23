@@ -38,8 +38,8 @@ php -m
 ### 1. Cloner le dépôt
 
 ```bash
-git clone <url-du-depot>
-cd 876-p15-inazaoui
+git clone https://github.com/valavoisier/refactorisation-optimisation-site-symfony.git
+cd refactorisation-optimisation-site-symfony
 ```
 
 ### 2. Installer les dépendances
@@ -78,7 +78,20 @@ php bin/console doctrine:migrations:version --add --all --no-interaction
 
 > La migration existante est incrémentale (elle modifie un schéma préexistant). Sur une installation fraîche, `doctrine:schema:create` génère toutes les tables depuis les entités, puis les trois commandes suivantes marquent la migration comme déjà appliquée sans l'exécuter.
 
-### 5. Charger les données de démonstration (optionnel)
+### ⚠️ Compatibilité des anciens fichiers SQL
+
+Les fichiers SQL provenant d’anciennes versions du site (ou éventuellement conservés lors d’installations antérieures) **ne doivent pas être réutilisés**.  
+Le schéma de base de données a été entièrement revu dans cette version Symfony 7.4, et ces fichiers ne sont désormais **plus compatibles** avec la structure actuelle (entités, relations, types et contraintes).
+
+Toute tentative de réimporter ces anciens fichiers entraînerait des erreurs d’intégrité ou un comportement incohérent.  
+La base doit donc être initialisée **uniquement** à partir :
+
+- des **migrations**, qui définissent le schéma actuel,  
+- et des **fixtures**, qui fournissent les données nécessaires au fonctionnement et aux tests.
+
+Cette approche garantit un environnement propre, cohérent et conforme à l’architecture du projet.
+
+### 5. Charger les données de démonstration (fixtures optionnelles)
 
 ```bash
 php bin/console doctrine:fixtures:load
@@ -110,9 +123,8 @@ php -S localhost:8000 -t public/
 | Role | Email | Mot de passe |
 |----------|-------------|---------|
 | Administrateur (Ina) | ina@zaoui.com | Admin1234!@# |
-| Invité 0 | invite+0@example.com | password0! |
-| Invité 1 | invite+1@example.com | password1! |
-| Invité N | invite+N@example.com | password |
+| Invité actif | invite@example.com | Guest1234!@# |
+| Invité bloqué | blocked@example.com | Guest1234!@# |
 
 
 Les mots de passe initialement créés sont valables même s'ils ne respectent pas les règles de validation du formulaire. Cependant, lors de la modification de la création d'un invité via le Back Office ou modification, les nouveaux mots de passe doivent respecter les contraintes de robustesse (12 caractères minimum, majuscules, minuscules, chiffres et caractères spéciaux).
@@ -173,7 +185,7 @@ DATABASE_URL="postgresql://utilisateur:motdepasse@127.0.0.1:5432/ina_zaoui?serve
 
 > Doctrine ajoute automatiquement le suffixe `_test` en environnement de test (`dbname_suffix` dans `doctrine.yaml`). La base réellement utilisée sera `ina_zaoui_test`.
 
-### Préparer la base de données de test
+### Préparer la base de données de test (fixtures nécessaires)
 
 ```bash
 php bin/console doctrine:database:create --env=test

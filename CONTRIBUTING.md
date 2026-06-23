@@ -31,7 +31,7 @@ Vérifier au préalable qu'aucune issue existante ne couvre déjà le problème.
 
 1. Ouvrir une issue avec le label `enhancement` **avant** d'écrire du code.
 2. Décrire le besoin fonctionnel, le cas d'usage et la valeur ajoutée.
-3. Documenter la décision prise (choix retenu, alternatives écartées et impact sur le code existant ) dans la description de la Pull Request pour faciliter la compréhension future.
+3. Documenter la décision prise (choix retenu, alternatives écartées et impact sur le code existant) dans la description de la Pull Request pour faciliter la compréhension future.
 
 ---
 
@@ -49,7 +49,7 @@ Vérifier au préalable qu'aucune issue existante ne couvre déjà le problème.
 
 - Utiliser le **kebab-case** (minuscules, tirets)
 - Toujours partir d'une branche `main` à jour
-- Une branche = une seule fonctionnalité ou correction
+- Une branche correspond à une seule fonctionnalité ou correction
 
 ### Commits
 
@@ -84,7 +84,7 @@ docs(readme): update installation instructions
 
 ---
 
-## Conventions de nommage — PHP / Symfony / Twig / Base de données
+## Conventions de code — PHP / Symfony / Twig / Base de données
 
 ### PHP / Symfony
 
@@ -123,7 +123,7 @@ main
 ```
 
 1. Créer une branche depuis `main` selon les conventions ci-dessus
-2. Développer et commiter régulièrement avec des messages explicites
+2. Développer et et effectuer des commits réguliers avec des messages explicites
 3. S'assurer que les tests passent et que la couverture reste ≥ 70 %
 4. Lancer l'analyse statique (voir [Bonnes pratiques](#bonnes-pratiques))
 5. Ouvrir une Pull Request vers `main` avec :
@@ -162,8 +162,11 @@ Avant tout merge dans `main`, s'assurer que :
 ```bash
 # Préparer l'environnement de test
 php bin/console doctrine:database:create --env=test
-php bin/console doctrine:migrations:migrate --env=test
+php bin/console doctrine:schema:create --env=test
+php bin/console doctrine:migrations:sync-metadata-storage --env=test
+php bin/console doctrine:migrations:version --add --all --no-interaction --env=test
 php bin/console doctrine:fixtures:load --env=test
+
 
 # Lancer les tests
 php bin/phpunit
@@ -180,8 +183,9 @@ Aucune erreur ne doit être introduite. Le niveau de rigueur est défini dans `p
 ### Sécurité
 
 - Ne jamais committer de secrets ou mots de passe — utiliser `.env.local`, ignoré par git.
-- Valider toutes les entrées utilisateur via le composant Symfony Validator (attributs #[IsGranted]).
-- Respecter les contrôles d'accès définis dans `security.yaml` et les contrôleurs.
+- Valider toutes les entrées utilisateur via le composant Symfony Validator 
+- contrôler les accès via les attributs #[IsGranted] et les règles définies dans `security.yaml`..
+- Respecter strictement les contrôles d'accès appliqués dans les contrôleurs et les routes.
 
 ### Style de code
 
