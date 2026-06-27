@@ -15,6 +15,7 @@ use App\Tests\Functional\FunctionalTestCase;
  *   - Contrôle d'accès à /admin/guest (anonyme, invité, admin)
  *   - Affichage de la liste des invités
  *   - Création d’un invité via le formulaire
+ *   - Validation de l’unicité de l’adresse e-mail (UniqueEntity)
  *   - Bascule de l’état "bloqué / non bloqué" (toggle)
  *   - Suppression d’un invité
  *   - Gestion des IDs inexistants (404 sur toggle/delete)
@@ -123,6 +124,36 @@ class GuestControllerTest extends FunctionalTestCase
         $this->assertResponseIsSuccessful();
         // Le formulaire de création doit être présent dans la page
         $this->assertSelectorExists('form');
+    }
+
+    /**
+     * La soumission du formulaire avec un email déjà utilisé affiche une erreur (UniqueEntity).
+     *
+     * Raison métier :
+     * - Deux invités ne peuvent pas partager la même adresse e-mail.
+     * - Le formulaire doit être réaffiché avec un message d'erreur clair.
+     * - Aucune redirection ne doit avoir lieu.
+     */
+    public function testAddDuplicateEmailShowsError(): void
+    {
+        // Client authentifié en tant qu'administrateur (accès autorisé à l'espace /admin)
+        $client = $this->createAdminClient();
+        // Accès à la page de création d'un invité
+        $crawler = $client->request('GET', '/admin/guest/add');
+
+        // On soumet le formulaire avec l'email déjà pris par l'invité actif des fixtures
+        $form = $crawler->selectButton('Créer l\'invité')->form([
+            'guest[name]' => 'Doublon',
+            'guest[email]' => \App\DataFixtures\AppFixtures::GUEST_EMAIL,
+            'guest[plainPassword]' => 'Secure1234!@#',
+        ]);
+        // Soumission du formulaire
+        $client->submit($form);
+
+        // Le formulaire doit être réaffiché avec une erreur (pas de redirection)
+        $this->assertResponseStatusCodeSame(422);
+        // Le message d'erreur doit indiquer que l'email est déjà utilisé
+        $this->assertSelectorTextContains('.invalid-feedback', 'déjà utilisée');
     }
 
     /**
